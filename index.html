@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Language Lab | Leitor de Texto</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='70'>🧠</text></svg>">
+    
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        :root {
+            --primary-red: #c20000;
+            --bg-color: #0a0a0a;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-dim: rgba(255, 255, 255, 0.6);
+            --text-muted: rgba(255, 255, 255, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            padding: 20px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .header .logo svg {
+            width: 40px;
+            height: 40px;
+            color: var(--primary-red);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+
+        .header p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            font-weight: 300;
+        }
+
+        /* Card Principal */
+        .tts-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .tts-card h2 {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--text-main);
+        }
+
+        /* Área de texto */
+        .input-area {
+            margin-bottom: 20px;
+        }
+
+        .input-area textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            color: var(--text-main);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .input-area textarea:focus {
+            outline: none;
+            border-color: var(--primary-red);
+            box-shadow: 0 0 0 3px rgba(194, 0, 0, 0.15);
+        }
+
+        .input-area textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Controles */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .controls .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .btn svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .btn-primary {
+            background: var(--primary-red);
+            color: white;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.95);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:active {
+            transform: scale(0.95);
+        }
+
+        /* Seletor de voz */
+        .voice-selector {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .voice-selector select {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .voice-selector select:focus {
+            outline: none;
+            border-color: var(--primary-red);
+        }
+
+        .voice-selector select option {
+            background: #1a1a1a;
+            color: white;
+        }
+
+        /* Status */
+        .status {
+            margin-top: 16px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            min-height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .status.playing {
+            color: var(--primary-red);
+        }
+
+        .status.done {
+            color: #4ade80;
+        }
+
+        .status.error {
+            color: #f87171;
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+
+            .container {
+                padding: 12px;
+            }
+
+            .tts-card {
+                padding: 24px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .header p {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .tts-card {
+                padding: 20px;
+                border-radius: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .controls .btn-group {
+                width: 100%;
+            }
+
+            .btn {
+                flex: 1;
+                justify-content: center;
+                padding: 12px 16px;
+                font-size: 0.85rem;
+            }
+
+            .voice-selector {
+                width: 100%;
+                min-width: unset;
+            }
+
+            .input-area textarea {
+                min-height: 80px;
+                font-size: 0.95rem;
+                padding: 14px 16px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .tts-card {
+                padding: 16px;
+                border-radius: 16px;
+            }
+
+            .header h1 {
+                font-size: 1.1rem;
+            }
+
+            .header .logo svg {
+                width: 32px;
+                height: 32px;
+            }
+
+            .btn {
+                font-size: 0.8rem;
+                padding: 10px 14px;
+            }
+
+            .input-area textarea {
+                min-height: 60px;
+                font-size: 0.9rem;
+                padding: 12px 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <i data-lucide="brain"></i>
+                <h1>Language Lab</h1>
+            </div>
+            <p>Leia qualquer texto em inglês em voz alta</p>
+        </div>
+
+        <!-- TTS Card -->
+        <div class="tts-card">
+            <h2>🔊 Leitor de Texto</h2>
+            
+            <div class="input-area">
+                <textarea id="tts-text" placeholder="Digite uma palavra ou frase em inglês..." rows="3">Hello, how are you today?</textarea>
+            </div>
+
+            <div class="controls">
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="tts-play">
+                        <i data-lucide="play"></i>
+                        Ouvir
+                    </button>
+                    <button class="btn btn-secondary" id="tts-stop">
+                        <i data-lucide="square"></i>
+                        Parar
+                    </button>
+                </div>
+                
+                <div class="voice-selector">
+                    <select id="tts-voice">
+                        <option value="">Voz padrão</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="status" id="tts-status">Pronto para ler</div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // ==========================================
+        // TTS - TEXT TO SPEECH TOOL
+        // ==========================================
+        const ttsText = document.getElementById('tts-text');
+        const ttsPlay = document.getElementById('tts-play');
+        const ttsStop = document.getElementById('tts-stop');
+        const ttsVoice = document.getElementById('tts-voice');
+        const ttsStatus = document.getElementById('tts-status');
+
+        // Check if browser supports Speech Synthesis
+        if (!('speechSynthesis' in window)) {
+            ttsStatus.textContent = '❌ Seu navegador não suporta leitura de texto';
+            ttsStatus.className = 'status error';
+            ttsPlay.disabled = true;
+            ttsStop.disabled = true;
+        }
+
+        const speechSynthesis = window.speechSynthesis;
+        let currentUtterance = null;
+        let isSpeaking = false;
+
+        // Carregar vozes disponíveis
+        function loadVoices() {
+            try {
+                const voices = speechSynthesis.getVoices();
+                ttsVoice.innerHTML = '<option value="">Voz padrão</option>';
+                
+                // Filtrar vozes em inglês
+                const englishVoices = voices.filter(v => v.lang.startsWith('en'));
+                
+                englishVoices.forEach(voice => {
+                    const option = document.createElement('option');
+                    option.value = voice.name;
+                    option.textContent = `${voice.name} (${voice.lang})`;
+                    ttsVoice.appendChild(option);
+                });
+                
+                // Se não houver vozes em inglês, mostrar todas
+                if (englishVoices.length === 0) {
+                    voices.forEach(voice => {
+                        const option = document.createElement('option');
+                        option.value = voice.name;
+                        option.textContent = `${voice.name} (${voice.lang})`;
+                        ttsVoice.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.log('Erro ao carregar vozes:', error);
+            }
+        }
+
+        // Carregar vozes quando disponíveis
+        if (speechSynthesis) {
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = loadVoices;
+            }
+            
+            // Tentar carregar imediatamente
+            setTimeout(loadVoices, 500);
+        }
+
+        // Função para falar o texto
+        function speakText() {
+            if (!speechSynthesis) {
+                ttsStatus.textContent = '❌ Leitura de texto não disponível';
+                ttsStatus.className = 'status error';
+                return;
+            }
+
+            if (isSpeaking) {
+                speechSynthesis.cancel();
+                isSpeaking = false;
+            }
+
+            const text = ttsText.value.trim();
+            if (!text) {
+                ttsStatus.textContent = '⚠️ Digite um texto para ouvir';
+                ttsStatus.className = 'status';
+                return;
+            }
+
+            try {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                utterance.pitch = 1;
+                utterance.volume = 1;
+
+                // Selecionar voz escolhida
+                const selectedVoice = ttsVoice.value;
+                if (selectedVoice) {
+                    const voices = speechSynthesis.getVoices();
+                    const voice = voices.find(v => v.name === selectedVoice);
+                    if (voice) {
+                        utterance.voice = voice;
+                    }
+                }
+
+                // Eventos
+                utterance.onstart = () => {
+                    isSpeaking = true;
+                    ttsStatus.textContent = '🔊 Reproduzindo...';
+                    ttsStatus.className = 'status playing';
+                    ttsPlay.innerHTML = '<i data-lucide="pause"></i> Ouvindo';
+                    lucide.createIcons();
+                };
+
+                utterance.onend = () => {
+                    isSpeaking = false;
+                    ttsStatus.textContent = '✅ Leitura concluída!';
+                    ttsStatus.className = 'status done';
+                    ttsPlay.innerHTML = '<i data-lucide="play"></i> Ouvir';
+                    lucide.createIcons();
+                    setTimeout(() => {
+                        if (!isSpeaking) {
+                            ttsStatus.textContent = 'Pronto para ler';
+                            ttsStatus.className = 'status';
+                        }
+                    }, 3000);
+                };
+
+                utterance.onerror = (event) => {
+                    isSpeaking = false;
+                    ttsStatus.textContent = `❌ Erro: ${event.error}`;
+                    ttsStatus.className = 'status error';
+                    ttsPlay.innerHTML = '<i data-lucide="play"></i> Ouvir';
+                    lucide.createIcons();
+                };
+
+                currentUtterance = utterance;
+                speechSynthesis.speak(utterance);
+            } catch (error) {
+                ttsStatus.textContent = '❌ Erro ao reproduzir: ' + error.message;
+                ttsStatus.className = 'status error';
+                ttsPlay.innerHTML = '<i data-lucide="play"></i> Ouvir';
+                lucide.createIcons();
+            }
+        }
+
+        // Função para parar
+        function stopSpeaking() {
+            if (speechSynthesis && speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+                isSpeaking = false;
+                ttsStatus.textContent = '⏹️ Parado';
+                ttsStatus.className = 'status';
+                ttsPlay.innerHTML = '<i data-lucide="play"></i> Ouvir';
+                lucide.createIcons();
+                setTimeout(() => {
+                    if (!isSpeaking) {
+                        ttsStatus.textContent = 'Pronto para ler';
+                        ttsStatus.className = 'status';
+                    }
+                }, 2000);
+            }
+        }
+
+        // Event listeners (com tratamento de erro)
+        if (ttsPlay) {
+            ttsPlay.addEventListener('click', speakText);
+        }
+        
+        if (ttsStop) {
+            ttsStop.addEventListener('click', stopSpeaking);
+        }
+
+        // Tecla Enter para reproduzir
+        if (ttsText) {
+            ttsText.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    speakText();
+                }
+            });
+        }
+
+        // Atualizar ícones periodicamente
+        setInterval(() => {
+            try {
+                lucide.createIcons();
+            } catch (error) {
+                // Ignora erros
+            }
+        }, 2000);
+
+        // Reinitialize icons on dynamic content
+        setTimeout(() => {
+            try {
+                lucide.createIcons();
+            } catch (error) {
+                // Ignora erros
+            }
+        }, 100);
+    </script>
+</body>
+</html>
