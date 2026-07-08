@@ -518,12 +518,12 @@
                 <i data-lucide="brain"></i>
                 <h1>Pronunciation tool</h1>
             </div>
-            <p>Leia qualquer texto em inglês em voz alta</p>
+            <p>Escreva qualquer texto e ouça a pronúncia [desenvolvido por @dicarvalho.prof] </p>
         </div>
 
         <!-- TTS Card -->
         <div class="tts-card">
-            <h2>🔊 Leitor de Texto</h2>
+            <h2>TTS (text-to-speech) </h2>
             
             <div class="input-area">
                 <textarea id="tts-text" placeholder="Digite uma palavra ou frase em inglês..." rows="3">Hello, how are you today?</textarea>
@@ -543,7 +543,7 @@
                 
                 <div class="voice-selector">
                     <select id="tts-voice">
-                        <option value="">Voz padrão</option>
+                        <option value="">Escolha uma voz</option>
                     </select>
                 </div>
             </div>
@@ -598,7 +598,7 @@
         function loadVoices() {
             try {
                 const voices = speechSynthesis.getVoices();
-                ttsVoice.innerHTML = '<option value="">Voz padrão</option>';
+                ttsVoice.innerHTML = '<option value="">Escolha uma voz</option>';
                 
                 // Filtrar vozes em inglês
                 const englishVoices = voices.filter(v => v.lang.startsWith('en'));
