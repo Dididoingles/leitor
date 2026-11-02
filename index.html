@@ -1,763 +1,1035 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>Language Lab | Leitor de Texto</title>
-    
-    <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='70'>🧠</text></svg>">
-    
-    <!-- Google Fonts - Poppins -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <style>
-        :root {
-            --primary-red: #c20000;
-            --bg-color: #0a0a0a;
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --border-color: rgba(255, 255, 255, 0.1);
-            --text-main: #ffffff;
-            --text-dim: rgba(255, 255, 255, 0.6);
-            --text-muted: rgba(255, 255, 255, 0.4);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-color);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-main);
-            padding: 20px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            overflow-x: hidden;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 700px;
-            padding: 20px;
-            margin: 0 auto;
-        }
-
-        /* ==========================================
-           ANIMAÇÕES DE ENTRADA
-           ========================================== */
-
-        /* Efeito de fade + subida para o header */
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            opacity: 0;
-            transform: translateY(30px);
-            animation: fadeInUp 0.8s ease 0.2s forwards;
-        }
-
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Efeito de escala + fade para o logo */
-        .header .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 8px;
-        }
-
-        .header .logo svg {
-            width: 40px;
-            height: 40px;
-            color: var(--primary-red);
-            opacity: 0;
-            transform: scale(0.5);
-            animation: logoPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.4s forwards;
-        }
-
-        @keyframes logoPop {
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .header h1 {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: var(--text-main);
-            line-height: 1.2;
-        }
-
-        .header p {
-            color: var(--text-dim);
-            font-size: 0.95rem;
-            font-weight: 300;
-            opacity: 0;
-            animation: fadeIn 0.6s ease 0.6s forwards;
-        }
-
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-            }
-        }
-
-        /* Card Principal - entrada com glass morphism e brilho */
-        .tts-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 32px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            transform: translateY(40px) scale(0.96);
-            animation: cardEntrance 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards;
-            position: relative;
-            overflow: hidden;
-        }
-
-        @keyframes cardEntrance {
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        /* Efeito de brilho que percorre o card ao abrir */
-        .tts-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -100%;
-            width: 40%;
-            height: 200%;
-            background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(255, 255, 255, 0.06),
-                transparent
-            );
-            transform: skewX(-25deg);
-            animation: shineSweep 1.2s ease 1s forwards;
-        }
-
-        @keyframes shineSweep {
-            0% {
-                left: -100%;
-            }
-            100% {
-                left: 200%;
-            }
-        }
-
-        .tts-card h2 {
-            font-size: 1.2rem;
-            font-weight: 500;
-            margin-bottom: 20px;
-            text-align: center;
-            color: var(--text-main);
-            opacity: 0;
-            animation: fadeIn 0.6s ease 0.6s forwards;
-        }
-
-        /* Área de texto - fade com delay */
-        .input-area {
-            margin-bottom: 20px;
-            opacity: 0;
-            animation: fadeIn 0.6s ease 0.7s forwards;
-        }
-
-        .input-area textarea {
-            width: 100%;
-            min-height: 100px;
-            padding: 16px 20px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            color: var(--text-main);
-            font-family: 'Poppins', sans-serif;
-            font-size: 1rem;
-            line-height: 1.6;
-            resize: vertical;
-            transition: all 0.3s ease;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-
-        .input-area textarea:focus {
-            outline: none;
-            border-color: var(--primary-red);
-            box-shadow: 0 0 0 3px rgba(194, 0, 0, 0.15);
-        }
-
-        .input-area textarea::placeholder {
-            color: var(--text-muted);
-        }
-
-        /* Controles - entrada em cascata */
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .controls .btn-group {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 12px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            -webkit-tap-highlight-color: transparent;
-            opacity: 0;
-            animation: fadeIn 0.6s ease forwards;
-        }
-
-        .btn:nth-child(1) {
-            animation-delay: 0.8s;
-        }
-        .btn:nth-child(2) {
-            animation-delay: 0.9s;
-        }
-
-        .btn svg {
-            width: 18px;
-            height: 18px;
-            flex-shrink: 0;
-        }
-
-        .btn-primary {
-            background: var(--primary-red);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(194, 0, 0, 0.3);
-        }
-
-        .btn-primary:active {
-            transform: scale(0.95);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.08);
-            color: white;
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-
-        .btn-secondary:active {
-            transform: scale(0.95);
-        }
-
-        /* Seletor de voz */
-        .voice-selector {
-            flex: 1;
-            min-width: 140px;
-            opacity: 0;
-            animation: fadeIn 0.6s ease 1s forwards;
-        }
-
-        .voice-selector select {
-            width: 100%;
-            padding: 10px 14px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            color: var(--text-main);
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            -webkit-appearance: none;
-            appearance: none;
-        }
-
-        .voice-selector select:focus {
-            outline: none;
-            border-color: var(--primary-red);
-        }
-
-        .voice-selector select option {
-            background: #1a1a1a;
-            color: white;
-        }
-
-        /* Controle de Velocidade */
-        .speed-control {
-            width: 100%;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border-color);
-            opacity: 0;
-            animation: fadeIn 0.6s ease 1.1s forwards;
-        }
-
-        .speed-control label {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            color: var(--text-dim);
-            margin-bottom: 6px;
-        }
-
-        .speed-control label .speed-value {
-            color: var(--text-main);
-            font-weight: 500;
-        }
-
-        .speed-control input[type="range"] {
-            width: 100%;
-            height: 4px;
-            -webkit-appearance: none;
-            appearance: none;
-            background: var(--border-color);
-            border-radius: 2px;
-            outline: none;
-            transition: background 0.3s ease;
-        }
-
-        .speed-control input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: var(--primary-red);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .speed-control input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.15);
-        }
-
-        .speed-control input[type="range"]::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: var(--primary-red);
-            cursor: pointer;
-            border: none;
-        }
-
-        .speed-control input[type="range"]:focus {
-            background: var(--primary-red);
-        }
-
-        .speed-control input[type="range"]:focus::-webkit-slider-thumb {
-            box-shadow: 0 0 0 3px rgba(194, 0, 0, 0.3);
-        }
-
-        .speed-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-
-        /* Status */
-        .status {
-            margin-top: 16px;
-            text-align: center;
-            font-size: 0.85rem;
-            color: var(--text-dim);
-            min-height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            opacity: 0;
-            animation: fadeIn 0.6s ease 1.2s forwards;
-        }
-
-        .status.playing {
-            color: var(--primary-red);
-        }
-
-        .status.done {
-            color: #4ade80;
-        }
-
-        .status.error {
-            color: #f87171;
-        }
-
-        /* Responsivo */
-        @media (max-width: 768px) {
-            body {
-                padding: 12px;
-            }
-
-            .container {
-                padding: 12px;
-            }
-
-            .tts-card {
-                padding: 24px;
-            }
-
-            .header h1 {
-                font-size: 1.5rem;
-            }
-
-            .header p {
-                font-size: 0.85rem;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .tts-card {
-                padding: 20px;
-                border-radius: 20px;
-            }
-
-            .header h1 {
-                font-size: 1.3rem;
-            }
-
-            .controls {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .controls .btn-group {
-                width: 100%;
-            }
-
-            .btn {
-                flex: 1;
-                justify-content: center;
-                padding: 12px 16px;
-                font-size: 0.85rem;
-            }
-
-            .voice-selector {
-                width: 100%;
-                min-width: unset;
-            }
-
-            .input-area textarea {
-                min-height: 80px;
-                font-size: 0.95rem;
-                padding: 14px 16px;
-            }
-        }
-
-        @media (max-width: 400px) {
-            .tts-card {
-                padding: 16px;
-                border-radius: 16px;
-            }
-
-            .header h1 {
-                font-size: 1.1rem;
-            }
-
-            .header .logo svg {
-                width: 32px;
-                height: 32px;
-            }
-
-            .btn {
-                font-size: 0.8rem;
-                padding: 10px 14px;
-            }
-
-            .input-area textarea {
-                min-height: 60px;
-                font-size: 0.9rem;
-                padding: 12px 14px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="Ferramenta de pronúncia em inglês: digite um texto e ouça a leitura com voz, velocidade e controle de reprodução.">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Leitor Interativo</title>
+
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* ==========================================
+       DESIGN TOKENS
+       ========================================== */
+    :root {
+      --color-bg: #0a0a0a;
+      --color-surface: rgba(255, 255, 255, 0.05);
+      --color-surface-hover: rgba(255, 255, 255, 0.08);
+      --color-border: rgba(255, 255, 255, 0.12);
+      --color-border-strong: rgba(255, 255, 255, 0.2);
+      --color-accent: #c20000;
+      --color-accent-hover: #e00000;
+      --color-text: #ffffff;
+      --color-text-dim: rgba(255, 255, 255, 0.72);
+      --color-text-muted: rgba(255, 255, 255, 0.55);
+      --color-success: #4ade80;
+      --color-warning: #fbbf24;
+      --color-error: #f87171;
+
+      --font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+      --text-xs: 0.75rem;
+      --text-sm: 0.875rem;
+      --text-base: 1rem;
+      --text-lg: 1.125rem;
+      --text-xl: 1.375rem;
+
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+      --duration-fast: 180ms;
+      --duration-slow: 600ms;
+    }
+
+    /* ==========================================
+       RESET / BASE
+       ========================================== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html { color-scheme: dark; }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* ==========================================
+       WELCOME SCREEN
+       ========================================== */
+    .welcome-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-6);
+      background-color: var(--color-bg);
+      transition: opacity 0.5s var(--ease-out), visibility 0.5s var(--ease-out);
+    }
+
+    .welcome-screen.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .welcome-content {
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      animation: fadeInUp var(--duration-slow) var(--ease-out) 0.2s both;
+    }
+
+    .welcome-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      margin-bottom: var(--space-4);
+      animation: floatIcon 3s ease-in-out infinite;
+    }
+
+    .welcome-icon svg {
+      width: 24px;
+      height: 24px;
+      color: var(--color-accent);
+    }
+
+    .welcome-content h1 {
+      font-size: 1.25rem;
+      font-weight: 500;
+      margin-bottom: var(--space-2);
+      letter-spacing: -0.01em;
+    }
+
+    .welcome-content p {
+      font-size: var(--text-sm);
+      color: var(--color-text-dim);
+      margin-bottom: var(--space-4);
+      line-height: 1.5;
+    }
+
+    .welcome-author {
+      display: block;
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      margin-bottom: var(--space-5);
+    }
+
+    .welcome-author strong {
+      color: var(--color-text);
+      font-weight: 500;
+    }
+
+    .btn-start {
+      padding: var(--space-2) var(--space-5);
+      font-size: var(--text-sm);
+      height: 40px;
+      width: 100%;
+      max-width: 180px;
+      margin: 0 auto;
+    }
+
+    /* ==========================================
+       APP CONTAINER (FIT TO SCREEN)
+       ========================================== */
+    .app-wrapper {
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - var(--space-8));
+      opacity: 0;
+      animation: fadeIn 0.5s var(--ease-out) 0.3s forwards;
+    }
+
+    /* ==========================================
+       HEADER
+       ========================================== */
+    .header {
+      text-align: center;
+      margin-bottom: var(--space-4);
+      flex-shrink: 0;
+    }
+
+    .header__logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-1);
+    }
+
+    .header__logo svg {
+      width: 28px;
+      height: 28px;
+      color: var(--color-accent);
+    }
+
+    .header h1 {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .header p {
+      font-size: var(--text-xs);
+      color: var(--color-text-dim);
+      font-weight: 300;
+    }
+
+    /* ==========================================
+       CARD PRINCIPAL
+       ========================================== */
+    .tts-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-5);
+      flex: 1;
+      min-height: 0;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); 
+    }
+
+    .tts-card h2 {
+      font-size: var(--text-base);
+      font-weight: 500;
+      text-align: center;
+      margin-bottom: var(--space-3);
+      flex-shrink: 0;
+    }
+
+    .tts-card h2 small {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 400;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-top: 2px;
+    }
+
+    /* ==========================================
+       INPUT AREA
+       ========================================== */
+    .input-area {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 80px;
+      margin-bottom: var(--space-3);
+    }
+
+    .input-area label {
+      font-size: var(--text-xs);
+      font-weight: 500;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-1);
+      flex-shrink: 0;
+    }
+
+    .input-area textarea {
+      width: 100%;
+      flex: 1;
+      padding: var(--space-3) var(--space-4);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      color: var(--color-text);
+      font-family: inherit;
+      font-size: var(--text-sm);
+      line-height: 1.5;
+      resize: none;
+      transition: border-color var(--duration-fast) ease;
+    }
+
+    .input-area textarea::placeholder { color: var(--color-text-muted); }
+
+    .input-area textarea:focus-visible {
+      outline: none;
+      border-color: var(--color-accent);
+    }
+
+    /* ==========================================
+       CONTROLES
+       ========================================== */
+    .controls {
+      display: flex;
+      gap: var(--space-2);
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: var(--space-2);
+      flex: 1;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-1);
+      padding: 0 var(--space-4);
+      height: 40px;
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      cursor: pointer;
+      transition: background var(--duration-fast) ease, border-color var(--duration-fast) ease;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .btn svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+
+    .btn:active:not(:disabled) {
+      background: var(--color-border-strong);
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn--primary {
+      background: var(--color-accent);
+      color: #fff;
+      flex: 1;
+    }
+
+    .btn--primary:hover:not(:disabled) {
+      background: var(--color-accent-hover);
+    }
+
+    .btn--secondary {
+      background: var(--color-surface-hover);
+      color: var(--color-text);
+      border-color: var(--color-border);
+      flex: 1;
+    }
+
+    .btn--secondary:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: var(--color-border-strong);
+    }
+
+    .voice-selector {
+      flex: 1.5;
+      min-width: 0;
+      height: 40px;
+    }
+
+    .voice-selector select {
+      width: 100%;
+      height: 100%;
+      padding: 0 var(--space-3);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      color: var(--color-text);
+      font-family: inherit;
+      font-size: var(--text-sm);
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='0.6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right var(--space-2) center;
+      padding-right: var(--space-6);
+      text-overflow: ellipsis;
+    }
+
+    .voice-selector select:focus-visible {
+      outline: none;
+      border-color: var(--color-accent);
+    }
+
+    .voice-selector select option {
+      background: #1a1a1a;
+      color: #fff;
+    }
+
+    /* ==========================================
+       SLIDER DE VELOCIDADE
+       ========================================== */
+    .speed-control {
+      margin-top: var(--space-4);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--color-border);
+      flex-shrink: 0;
+    }
+
+    .speed-control__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-2);
+    }
+
+    .speed-control__header label {
+      font-size: var(--text-xs);
+      font-weight: 500;
+      color: var(--color-text-dim);
+    }
+
+    .speed-control__value {
+      font-variant-numeric: tabular-nums;
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--color-text);
+      padding: 2px 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-sm);
+      min-width: 40px;
+      text-align: center;
+    }
+
+    .speed-control input[type="range"] {
+      width: 100%;
+      height: 4px;
+      appearance: none;
+      -webkit-appearance: none;
+      background: var(--color-border);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .speed-control input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      border: 2px solid var(--color-bg);
+      transition: transform var(--duration-fast) ease;
+    }
+
+    .speed-control input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+
+    .speed-control input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      border: 2px solid var(--color-bg);
+      cursor: pointer;
+    }
+
+    .speed-control input[type="range"]:focus-visible {
+      box-shadow: 0 0 0 2px rgba(194, 0, 0, 0.25);
+    }
+
+    .speed-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.65rem;
+      color: var(--color-text-muted);
+      margin-top: 4px;
+    }
+
+    /* ==========================================
+       STATUS
+       ========================================== */
+    .status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      margin-top: var(--space-3);
+      min-height: 20px;
+      font-size: var(--text-xs);
+      color: var(--color-text-dim);
+      flex-shrink: 0;
+    }
+
+    .status__icon-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      flex: 0 0 14px;
+    }
+
+    .status__icon-wrapper svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .status__icon-wrapper[hidden] { display: none !important; }
+
+    .status > span:not(.status__icon-wrapper) {
+      display: inline-block;
+    }
+
+    .status--playing { color: var(--color-accent); }
+    .status--done    { color: var(--color-success); }
+    .status--error   { color: var(--color-error); }
+    .status--warning { color: var(--color-warning); }
+
+    .status--playing .status__icon-wrapper svg {
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+
+    /* ==========================================
+       ANIMAÇÕES
+       ========================================== */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes floatIcon {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-6px); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.5; }
+    }
+
+    /* ==========================================
+       RESPONSIVO (MOBILE)
+       ========================================== */
+    @media (max-width: 768px) {
+      body {
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+        padding: var(--space-3);
+        align-items: flex-start;
+      }
+      .app-wrapper {
+        max-height: none;
+        margin-top: var(--space-2);
+      }
+      .input-area textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .controls {
+        flex-direction: column;
+        gap: var(--space-2);
+      }
+      .btn-group {
+        width: 100%;
+      }
+      .voice-selector {
+        width: 100%;
+        flex: none;
+      }
+      .header p { display: none; }
+      .tts-card h2 small { display: none; }
+      .tts-card { padding: var(--space-4); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .welcome-icon { animation: none; }
+      .status--playing .status__icon-wrapper svg { animation: none; }
+    }
+
+    /* ==========================================
+       AJUSTES ESPECÍFICOS PARA DESKTOP 
+       (Melhora a legibilidade sem quebrar o layout fit-to-screen)
+       ========================================== */
+    @media (min-width: 769px) {
+      :root {
+        --text-xs: 0.8125rem; /* ~13px */
+        --text-sm: 0.9375rem; /* ~15px */
+        --text-base: 1rem; /* ~18px */
+        --text-lg: 1.375rem;   /* ~22px */
+        --text-xl: 1.75rem;    /* ~28px */
+      }
+
+      .app-wrapper {
+        max-width: 780px; /* Caixa ligeiramente mais larga no desktop */
+      }
+
+      .header {
+        margin-bottom: var(--space-6);
+      }
+
+      .header__logo svg {
+        width: 36px;
+        height: 36px;
+      }
+
+      .tts-card {
+        padding: var(--space-8); /* Mais respiro interno */
+      }
+
+      .tts-card h2 {
+        margin-bottom: var(--space-5);
+      }
+
+      /* Textarea com fonte maior e altura mínima maior */
+      .input-area {
+        margin-bottom: var(--space-5);
+      }
+
+      .input-area textarea {
+        font-size: var(--text-base);
+        min-height: 200px;
+        padding: var(--space-5);
+      }
+
+      /* Botões e selects maiores para acompanhar a escala */
+      .btn {
+        height: 48px;
+        font-size: var(--text-sm);
+      }
+
+      .btn svg {
+        width: 18px;
+        height: 18px;
+      }
+
+      .voice-selector {
+        height: 48px;
+      }
+
+      .voice-selector select {
+        font-size: var(--text-sm);
+      }
+
+      .speed-control {
+        margin-top: var(--space-6);
+        padding-top: var(--space-5);
+      }
+
+      .speed-control__header label {
+        font-size: var(--text-sm);
+      }
+
+      .speed-control__value {
+        font-size: var(--text-sm);
+        padding: 4px 12px;
+        min-width: 48px;
+      }
+
+      .speed-control input[type="range"] {
+        height: 6px;
+      }
+
+      .speed-control input[type="range"]::-webkit-slider-thumb {
+        width: 20px;
+        height: 20px;
+      }
+
+      .speed-labels {
+        font-size: var(--text-xs);
+        margin-top: var(--space-2);
+      }
+
+      .status {
+        font-size: var(--text-sm);
+        margin-top: var(--space-4);
+      }
+
+      .status__icon-wrapper {
+        width: 18px;
+        height: 18px;
+        flex: 0 0 18px;
+      }
+
+      /* Ajuste na tela de boas-vindas para ficar mais imponente no desktop */
+      .welcome-content {
+        max-width: 440px;
+      }
+      
+      .welcome-icon {
+        width: 72px;
+        height: 72px;
+        margin-bottom: var(--space-5);
+      }
+
+      .welcome-icon svg {
+        width: 32px;
+        height: 32px;
+      }
+
+      .welcome-content h1 {
+        font-size: 1.75rem;
+      }
+
+      .welcome-content p {
+        font-size: var(--text-base);
+        margin-bottom: var(--space-5);
+      }
+
+      .welcome-author {
+        font-size: var(--text-sm);
+      }
+
+      .btn-start {
+        height: 48px;
+        font-size: var(--text-sm);
+        max-width: 220px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div class="logo">
-                <i data-lucide="brain"></i>
-                <h1>Pronunciation tool</h1>
-            </div>
-            <p>Escreva qualquer texto e ouça a pronúncia [desenvolvido por @dicarvalho.prof] </p>
-        </div>
-
-        <!-- TTS Card -->
-        <div class="tts-card">
-            <h2>TTS (text-to-speech) </h2>
-            
-            <div class="input-area">
-                <textarea id="tts-text" placeholder="Digite uma palavra ou frase em inglês..." rows="3">Hello, how are you today?</textarea>
-            </div>
-
-            <div class="controls">
-                <div class="btn-group">
-                    <button class="btn btn-primary" id="tts-play">
-                        <i data-lucide="play"></i>
-                        Ouvir
-                    </button>
-                    <button class="btn btn-secondary" id="tts-stop">
-                        <i data-lucide="square"></i>
-                        Parar
-                    </button>
-                </div>
-                
-                <div class="voice-selector">
-                    <select id="tts-voice">
-                        <option value="">Escolha uma voz</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Controle de Velocidade -->
-            <div class="speed-control">
-                <label>
-                    <span>🐢 Lenta</span>
-                    <span class="speed-value" id="speed-display">1.0x</span>
-                    <span>🐇 Rápida</span>
-                </label>
-                <input type="range" id="speed-slider" min="0.5" max="2.0" step="0.1" value="1.0">
-                <div class="speed-labels">
-                    <span>0.5x</span>
-                    <span>1.0x</span>
-                    <span>2.0x</span>
-                </div>
-            </div>
-
-            <div class="status" id="tts-status">Pronto para ler</div>
-        </div>
+  <!-- TELA DE BOAS VINDAS -->
+  <div class="welcome-screen" id="welcome-screen">
+    <div class="welcome-content">
+      <div class="welcome-icon">
+        <i data-lucide="audio-lines" aria-hidden="true"></i>
+      </div>
+      <h1>Leitor Interativo</h1>
+      <p>
+        Escreva qualquer texto, escolha a voz e ajuste a velocidade para praticar sua escuta e pronúncia.
+      </p>
+      <span class="welcome-author">
+        Desenvolvido por <strong>@dicarvalho.prof</strong>
+      </span>
+      <button class="btn btn--primary btn-start" id="btn-start" type="button">
+        Começar
+        <i data-lucide="arrow-right" aria-hidden="true"></i>
+      </button>
     </div>
+  </div>
 
-    <script>
-        // Initialize Lucide icons 
-        lucide.createIcons();
+  <!-- APP PRINCIPAL -->
+  <main class="app-wrapper">
+    <header class="header">
+      <div class="header__logo">
+        <i data-lucide="brain" aria-hidden="true"></i>
+        <h1>Leitor interativo</h1>
+      </div>
+      <p>Digite qualquer texto e ouça a pronúncia.</p>
+    </header>
 
-        // ==========================================
-        // TTS - TEXT TO SPEECH TOOL
-        // ==========================================
-        const ttsText = document.getElementById('tts-text');
-        const ttsPlay = document.getElementById('tts-play');
-        const ttsStop = document.getElementById('tts-stop');
-        const ttsVoice = document.getElementById('tts-voice');
-        const ttsStatus = document.getElementById('tts-status');
-        const speedSlider = document.getElementById('speed-slider');
-        const speedDisplay = document.getElementById('speed-display');
+    <section class="tts-card" aria-labelledby="tts-title">
+      <h2 id="tts-title">
+        Text-to-speech
+        <small>Conversão de texto em fala</small>
+      </h2>
 
-        // Check if browser supports Speech Synthesis
-        if (!('speechSynthesis' in window)) {
-            ttsStatus.textContent = '❌ Seu navegador não suporta leitura de texto';
-            ttsStatus.className = 'status error';
-            ttsPlay.disabled = true;
-            ttsStop.disabled = true;
-        }
+      <div class="input-area">
+        <label for="tts-text">Texto para ler</label>
+        <textarea
+          id="tts-text"
+          lang="en"
+          placeholder="Digite uma palavra ou frase em inglês..."
+          spellcheck="false"
+        >Hello, how are you today?</textarea>
+      </div>
 
-        const speechSynthesis = window.speechSynthesis;
-        let currentUtterance = null;
-        let isSpeaking = false;
+      <div class="controls">
+        <div class="btn-group">
+          <button class="btn btn--primary" id="tts-play" type="button" aria-label="Ouvir texto">
+            <i data-lucide="play" aria-hidden="true"></i>
+            <span>Ouvir</span>
+          </button>
+          <button class="btn btn--secondary" id="tts-stop" type="button" aria-label="Parar leitura">
+            <i data-lucide="square" aria-hidden="true"></i>
+            <span>Parar</span>
+          </button>
+        </div>
 
-        // Carregar vozes disponíveis
-        function loadVoices() {
-            try {
-                const voices = speechSynthesis.getVoices();
-                ttsVoice.innerHTML = '<option value="">Escolha uma voz</option>';
-                
-                // Filtrar vozes em inglês
-                const englishVoices = voices.filter(v => v.lang.startsWith('en'));
-                
-                englishVoices.forEach(voice => {
-                    const option = document.createElement('option');
-                    option.value = voice.name;
-                    option.textContent = `${voice.name} (${voice.lang})`;
-                    ttsVoice.appendChild(option);
-                });
-                
-                // Se não houver vozes em inglês, mostrar todas
-                if (englishVoices.length === 0) {
-                    voices.forEach(voice => {
-                        const option = document.createElement('option');
-                        option.value = voice.name;
-                        option.textContent = `${voice.name} (${voice.lang})`;
-                        ttsVoice.appendChild(option);
-                    });
-                }
-            } catch (error) {
-                console.log('Erro ao carregar vozes:', error);
-            }
-        }
+        <div class="voice-selector">
+          <select id="tts-voice" aria-label="Escolha uma voz">
+            <option value="">Escolha uma voz</option>
+          </select>
+        </div>
+      </div>
 
-        // Carregar vozes quando disponíveis
-        if (speechSynthesis) {
-            if (speechSynthesis.onvoiceschanged !== undefined) {
-                speechSynthesis.onvoiceschanged = loadVoices;
-            }
-            
-            // Tentar carregar imediatamente
-            setTimeout(loadVoices, 500);
-        }
+      <div class="speed-control">
+        <div class="speed-control__header">
+          <label for="speed-slider">Velocidade da leitura</label>
+          <span class="speed-control__value" id="speed-display" aria-live="polite">1.0x</span>
+        </div>
+        <input
+          type="range"
+          id="speed-slider"
+          min="0.5" max="2.0" step="0.1" value="1.0"
+          aria-valuemin="0.5"
+          aria-valuemax="2.0"
+          aria-valuenow="1.0"
+        >
+        <div class="speed-labels" aria-hidden="true">
+          <span>0.5x</span>
+          <span>1.0x</span>
+          <span>2.0x</span>
+        </div>
+      </div>
 
-        // Atualizar display da velocidade
-        function updateSpeedDisplay() {
-            const speed = parseFloat(speedSlider.value);
-            speedDisplay.textContent = speed.toFixed(1) + 'x';
-        }
-
-        speedSlider.addEventListener('input', updateSpeedDisplay);
-
-        // Função para falar o texto
-        function speakText() {
-            if (!speechSynthesis) {
-                ttsStatus.textContent = '❌ Leitura de texto não disponível';
-                ttsStatus.className = 'status error';
-                return;
-            }
-
-            if (isSpeaking) {
-                speechSynthesis.cancel();
-                isSpeaking = false;
-            }
-
-            const text = ttsText.value.trim();
-            if (!text) {
-                ttsStatus.textContent = '⚠️ Digite um texto para ouvir';
-                ttsStatus.className = 'status';
-                return;
-            }
-
-            try {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-US';
-                utterance.rate = parseFloat(speedSlider.value);
-                utterance.pitch = 1;
-                utterance.volume = 1;
-
-                // Selecionar voz escolhida
-                const selectedVoice = ttsVoice.value;
-                if (selectedVoice) {
-                    const voices = speechSynthesis.getVoices();
-                    const voice = voices.find(v => v.name === selectedVoice);
-                    if (voice) {
-                        utterance.voice = voice;
-                    }
-                }
-
-                // Eventos
-                utterance.onstart = () => {
-                    isSpeaking = true;
-                    ttsStatus.textContent = '🔊 Reproduzindo...';
-                    ttsStatus.className = 'status playing';
-                    ttsPlay.innerHTML = '<i data-lucide="pause"></i> Ouvindo';
-                    lucide.createIcons();
-                };
-
-                utterance.onend = () => {
-                    isSpeaking = false;
-                    ttsStatus.textContent = '✅ Leitura concluída!';
-                    ttsStatus.className = 'status done';
-                    ttsPlay.innerHTML = '<i data-lucide="play"></i> Ouvir';
-                    lucide.createIcons();
-                    setTimeout(() => {
-                        if (!isSpeaking) {
-                            ttsStatus.textContent = 'Pronto para ler';
-                            ttsStatus.className = 'status';
-                        }
-                    }, 3000);
-                };
-
-                utterance.onerror = (event) => {
-                    isSpeaking = false;
-                    ttsStatus.textContent = `❌ Erro: ${event.error}`;
-                    ttsStatus.className = 'status error';
-                    ttsPlay.innerHTML = '<i data-lucide="play"></i> Ouvir';
-                    lucide.createIcons();
-                };
-
-                currentUtterance = utterance;
-                speechSynthesis.speak(utterance);
-            } catch (error) {
-                ttsStatus.textContent = '❌ Erro ao reproduzir: ' + error.message;
-                ttsStatus.className = 'status error';
-                ttsPlay.innerHTML = '<i data-lucide="play"></i> Ouvir';
-                lucide.createIcons();
-            }
-        }
-
-        // Função para parar
-        function stopSpeaking() {
-            if (speechSynthesis && speechSynthesis.speaking) {
-                speechSynthesis.cancel();
-                isSpeaking = false;
-                ttsStatus.textContent = '⏹️ Parado';
-                ttsStatus.className = 'status';
-                ttsPlay.innerHTML = '<i data-lucide="play"></i> Ouvir';
-                lucide.createIcons();
-                setTimeout(() => {
-                    if (!isSpeaking) {
-                        ttsStatus.textContent = 'Pronto para ler';
-                        ttsStatus.className = 'status';
-                    }
-                }, 2000);
-            }
-        }
-
-        // Event listeners (com tratamento de erro)
-        if (ttsPlay) {
-            ttsPlay.addEventListener('click', speakText);
-        }
+      <div class="status" id="tts-status" role="status" aria-live="polite">
+        <span class="status__icon-wrapper" data-status-icon="ready">
+          <i data-lucide="check-circle-2" aria-hidden="true"></i>
+        </span>
+        <span class="status__icon-wrapper" data-status-icon="playing" hidden>
+          <i data-lucide="volume-2" aria-hidden="true"></i>
+        </span>
+        <span class="status__icon-wrapper" data-status-icon="done" hidden>
+          <i data-lucide="check-circle-2" aria-hidden="true"></i>
+        </span>
+        <span class="status__icon-wrapper" data-status-icon="stopped" hidden>
+          <i data-lucide="square" aria-hidden="true"></i>
+        </span>
+        <span class="status__icon-wrapper" data-status-icon="warning" hidden>
+          <i data-lucide="alert-triangle" aria-hidden="true"></i>
+        </span>
+        <span class="status__icon-wrapper" data-status-icon="error" hidden>
+          <i data-lucide="alert-circle" aria-hidden="true"></i>
+        </span>
         
-        if (ttsStop) {
-            ttsStop.addEventListener('click', stopSpeaking);
-        }
+        <span id="tts-status-text">Pronto para ler</span>
+      </div>
+    </section>
+  </main>
 
-        // Tecla Enter para reproduzir
-        if (ttsText) {
-            ttsText.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    speakText();
-                }
-            });
-        }
+  <noscript>
+    <p style="text-align:center;padding:1rem;color:#f87171">
+      Esta ferramenta precisa de JavaScript habilitado para funcionar.
+    </p>
+  </noscript>
 
-        
-    </script>
+  <script>
+    'use strict';
+
+    lucide.createIcons();
+
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const btnStart = document.getElementById('btn-start');
+
+    btnStart.addEventListener('click', () => {
+      welcomeScreen.classList.add('is-hidden');
+      setTimeout(() => {
+        welcomeScreen.style.display = 'none';
+        document.getElementById('tts-text').focus();
+      }, 500); 
+    });
+
+    const els = {
+      text:    document.getElementById('tts-text'),
+      play:    document.getElementById('tts-play'),
+      stop:    document.getElementById('tts-stop'),
+      voice:   document.getElementById('tts-voice'),
+      status:  document.getElementById('tts-status'),
+      statusText: document.getElementById('tts-status-text'),
+      slider:  document.getElementById('speed-slider'),
+      speed:   document.getElementById('speed-display'),
+    };
+
+    const synth = window.speechSynthesis;
+    const supported = 'speechSynthesis' in window;
+
+    const state = {
+      speaking: false,
+      utterance: null,
+      resetTimer: null,
+    };
+
+    const STATUS = {
+      ready:   { cls: 'status',          text: 'Pronto para ler' },
+      playing: { cls: 'status--playing', text: 'Reproduzindo...' },
+      done:    { cls: 'status--done',    text: 'Leitura concluída' },
+      stopped: { cls: 'status',          text: 'Parado' },
+      warning: { cls: 'status--warning', text: 'Digite um texto para ouvir' },
+      error:   { cls: 'status--error',   text: 'Erro ao reproduzir' },
+    };
+
+    function setStatus(key, customText) {
+      const conf = STATUS[key] || STATUS.ready;
+      els.status.className = conf.cls;
+
+      els.status.querySelectorAll('[data-status-icon]').forEach(el => {
+        el.hidden = el.dataset.statusIcon !== key;
+      });
+
+      if (els.statusText) {
+        els.statusText.textContent = customText || conf.text;
+      }
+    }
+
+    function scheduleReset(delay = 3000) {
+      clearTimeout(state.resetTimer);
+      state.resetTimer = setTimeout(() => {
+        if (!state.speaking) setStatus('ready');
+      }, delay);
+    }
+
+    function populateVoices() {
+      if (!supported) return;
+      const voices = synth.getVoices();
+      if (!voices.length) return;
+
+      const english = voices.filter(v => v.lang?.toLowerCase().startsWith('en'));
+      const list = english.length ? english : voices;
+
+      els.voice.innerHTML = '<option value="">Escolha uma voz</option>';
+      list.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.name;
+        opt.textContent = `${v.name} (${v.lang})`;
+        els.voice.appendChild(opt);
+      });
+    }
+
+    if (supported) {
+      populateVoices();
+      synth.onvoiceschanged = populateVoices;
+    }
+
+    els.slider.addEventListener('input', () => {
+      const v = parseFloat(els.slider.value);
+      els.speed.textContent = v.toFixed(1) + 'x';
+      els.slider.setAttribute('aria-valuenow', v.toFixed(1));
+    });
+
+    function speak() {
+      if (!supported) return;
+      if (synth.speaking) synth.cancel();
+
+      const text = els.text.value.trim();
+      if (!text) {
+        setStatus('warning');
+        scheduleReset(2500);
+        return;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang   = 'en-US';
+      utterance.rate   = parseFloat(els.slider.value);
+      utterance.pitch  = 1;
+      utterance.volume = 1;
+
+      const chosen = els.voice.value;
+      if (chosen) {
+        const voice = synth.getVoices().find(v => v.name === chosen);
+        if (voice) utterance.voice = voice;
+      }
+
+      utterance.onstart = () => {
+        state.speaking = true;
+        setStatus('playing');
+      };
+
+      utterance.onend = () => {
+        state.speaking = false;
+        setStatus('done');
+        scheduleReset(3000);
+      };
+
+      utterance.onerror = (e) => {
+        state.speaking = false;
+        if (e.error === 'interrupted' || e.error === 'canceled') return;
+        setStatus('error', `Erro: ${e.error}`);
+        scheduleReset(3500);
+      };
+
+      state.utterance = utterance;
+      synth.speak(utterance);
+    }
+
+    function stop() {
+      if (!supported) return;
+      if (synth.speaking || synth.pending) {
+        synth.cancel();
+        state.speaking = false;
+        setStatus('stopped');
+        scheduleReset(2000);
+      }
+    }
+
+    els.play.addEventListener('click', speak);
+    els.stop.addEventListener('click', stop);
+
+    els.text.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        speak();
+      }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && synth.speaking) {
+        synth.cancel();
+        state.speaking = false;
+        setStatus('stopped');
+      }
+    });
+
+    if (!supported) {
+      setStatus('error', 'Seu navegador não suporta leitura de texto');
+      els.play.disabled = true;
+      els.stop.disabled = true;
+    }
+  </script>
 </body>
 </html>
