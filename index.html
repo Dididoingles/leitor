@@ -6,6 +6,23 @@
   <meta name="theme-color" content="#0a0a0a">
   <meta name="description" content="Leitor Interativo — Aprenda a pronúncia de qualquer frase em inglês. Ouça, repita e receba uma nota instantânea.">
   <title>Leitor Interativo</title>
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_BR">
+    <meta property="og:site_name" content="Leitor Interativo">
+    <meta property="og:title" content="Leitor Interativo — Aprenda pronúncia em inglês">
+    <meta property="og:description" content="Ouça, repita e receba uma nota instantânea da sua pronúncia. Estude com qualquer material, de graça.">
+    <meta property="og:url" content="https://dididoingles.github.io/leitor/">
+    <meta property="og:image" content="https://dididoingles.github.io/leitor/metatag.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Leitor Interativo — ferramenta gratuita de pronúncia em inglês">
+  
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Leitor Interativo — Aprenda pronúncia em inglês">
+    <meta name="twitter:description" content="Ouça, repita e receba uma nota instantânea da sua pronúncia.">
+    <meta name="twitter:image" content="https://dididoingles.github.io/leitor/metatag.jpg">
 
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,7 +52,8 @@
       --space-8: 32px;
       --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
       --tracking-tight: -0.02em;
-      --tracking-tighter: -0.045em;
+      --tracking-tighter: -0.065em;
+      --tracking-tighter1: -0.055em;
     }
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -261,6 +279,7 @@
       line-height: 1.6;
       max-width: 34ch;
       text-wrap: pretty;
+      letter-spacing: --tracking-tighter1;
     }
 
     .welcome-author {
@@ -323,7 +342,7 @@
         display: grid;
         grid-template-columns: 1fr auto;
         align-items: center;
-        gap: clamp(32px, 6vw, 80px);
+        gap: clamp(32px, 6vw, 96px);
         text-align: left;
       }
 
