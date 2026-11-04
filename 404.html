@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <meta name="description" content="Página não encontrada — Leitor Interativo.">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>404 — Página não encontrada | Leitor Interativo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --color-bg: #0a0a0a;
+      --color-surface-hover: rgba(255, 255, 255, 0.08);
+      --color-border: rgba(255, 255, 255, 0.12);
+      --color-border-strong: rgba(255, 255, 255, 0.2);
+      --color-accent: #c20000;
+      --color-accent-hover: #e00000;
+      --color-text: #ffffff;
+      --color-text-dim: rgba(255, 255, 255, 0.72);
+      --color-text-muted: rgba(255, 255, 255, 0.55);
+
+      --font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+      --text-xs: 0.75rem;
+      --text-sm: 0.875rem;
+      --text-base: 1rem;
+      --text-lg: 1.125rem;
+
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+
+      --radius-md: 12px;
+      --radius-xl: 20px;
+
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+      --duration-fast: 180ms;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { color-scheme: dark; }
+
+    body {
+      font-family: var(--font-family);
+      background:
+        radial-gradient(circle at 50% -10%, rgba(194, 0, 0, 0.10), transparent 55%),
+        radial-gradient(circle at 110% 110%, rgba(194, 0, 0, 0.05), transparent 50%),
+        var(--color-bg);
+      background-attachment: fixed;
+      color: var(--color-text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      line-height: 1.5;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .bg-waves {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 140px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 4px;
+      padding: 0 2%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.09;
+      mask-image: linear-gradient(to top, #000 10%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to top, #000 10%, transparent 100%);
+    }
+    .bg-waves span {
+      flex: 1 1 0;
+      min-width: 2px;
+      max-width: 10px;
+      min-height: 6px;
+      border-radius: 3px;
+      background: linear-gradient(to top, var(--color-accent), transparent);
+      animation: waveBar 2.4s ease-in-out infinite;
+      transform-origin: bottom;
+    }
+
+    .app-wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      opacity: 0;
+      animation: fadeIn 0.5s var(--ease-out) 0.1s forwards;
+    }
+
+    .header__logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-6);
+      text-decoration: none;
+      color: var(--color-text);
+      transition: opacity var(--duration-fast) ease;
+    }
+    .header__logo:hover { opacity: 0.8; }
+    
+    /* Animação do ícone do logo */
+    .header__logo svg { 
+      width: 32px; 
+      height: 32px; 
+      color: var(--color-accent); 
+      transition: transform 0.6s var(--ease-out);
+    }
+    .header__logo:hover svg {
+      transform: rotate(180deg);
+    }
+
+    .header__logo span { font-size: var(--text-lg); font-weight: 600; letter-spacing: -0.02em; }
+
+    .error-code {
+      font-size: 6rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.05em;
+      color: var(--color-text);
+      margin-bottom: var(--space-2);
+      background: linear-gradient(to bottom, #fff, rgba(255,255,255,0.4));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      /* Nova animação: o 404 flutua */
+      animation: floatText 3s ease-in-out infinite;
+    }
+
+    .error-title {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      margin-bottom: var(--space-3);
+      color: var(--color-text);
+      /* Os textos acompanham a flutuação com um pequeno delay */
+      animation: floatText 3s ease-in-out infinite;
+      animation-delay: 0.1s;
+    }
+
+    .error-desc {
+      font-size: var(--text-sm);
+      color: var(--color-text-dim);
+      margin-bottom: var(--space-6);
+      max-width: 400px;
+      animation: floatText 3s ease-in-out infinite;
+      animation-delay: 0.2s;
+    }
+
+    .actions {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: 0 var(--space-5);
+      height: 48px;
+      min-height: 48px;
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--duration-fast) ease;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .btn--primary {
+      background: var(--color-accent);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(194, 0, 0, 0.3); /* Brilho sutil embaixo do botão */
+    }
+    .btn--primary:hover { 
+      background: var(--color-accent-hover); 
+      transform: translateY(-2px); /* Sobe levemente no hover */
+      box-shadow: 0 6px 20px rgba(194, 0, 0, 0.4);
+    }
+
+    .app-footer {
+      margin-top: var(--space-8);
+      font-size: 0.7rem;
+      color: var(--color-text-muted);
+      letter-spacing: 0.01em;
+    }
+
+    /* ==========================================
+       NOVAS ANIMAÇÕES
+       ========================================== */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    
+    @keyframes waveBar {
+      0%, 100% { height: calc(var(--h) * 0.4); opacity: 0.6; }
+      50%      { height: var(--h);          opacity: 1;   }
+    }
+
+    /* Efeito de flutuação suave */
+    @keyframes floatText {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+
+    /* Pulso no fundo (efeito "respirando") */
+    .pulse-bg {
+      position: fixed;
+      top: 50%; left: 50%;
+      width: 100vw; height: 100vh;
+      transform: translate(-50%, -50%);
+      background: radial-gradient(circle at 50% 50%, rgba(194, 0, 0, 0.06) 0%, transparent 60%);
+      z-index: 0;
+      pointer-events: none;
+      animation: pulseBg 6s ease-in-out infinite;
+    }
+
+    @keyframes pulseBg {
+      0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+      50%      { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+    }
+
+    @media (min-width: 769px) {
+      :root {
+        --text-lg: 1.375rem;
+      }
+      .error-code { font-size: 8rem; }
+      .bg-waves { height: 180px; opacity: 0.10; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+      .bg-waves { display: none; }
+      .pulse-bg { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fundo com efeito de respiração -->
+  <div class="pulse-bg" aria-hidden="true"></div>
+  <div class="bg-waves" id="bg-waves" aria-hidden="true"></div>
+
+  <main class="app-wrapper">
+    <a href="index.html" class="header__logo">
+      <i data-lucide="audio-lines" aria-hidden="true"></i>
+      <span>Leitor Interativo</span>
+    </a>
+
+    <div class="error-code">404</div>
+    <h1 class="error-title">Página não encontrada</h1>
+    <p class="error-desc">
+      Ops! O link que você tentou acessar não existe, foi removido ou está em outro endereço.
+    </p>
+
+    <div class="actions">
+      <a class="btn btn--primary" href="index.html">
+        <i data-lucide="home" aria-hidden="true"></i>
+        <span>Ir para a Home</span>
+      </a>
+    </div>
+
+    <footer class="app-footer">
+      Desenvolvido por @dicarvalho.prof
+    </footer>
+  </main>
+
+  <script>
+    'use strict';
+    lucide.createIcons();
+
+    (function buildWaves() {
+      const container = document.getElementById('bg-waves');
+      if (!container) return;
+      const count = Math.max(24, Math.floor(window.innerWidth / 22));
+      const frag = document.createDocumentFragment();
+      for (let i = 0; i < count; i++) {
+        const bar = document.createElement('span');
+        bar.style.setProperty('--h', (25 + Math.random() * 75) + '%');
+        bar.style.animationDelay = (Math.random() * 2.4).toFixed(2) + 's';
+        frag.appendChild(bar);
+      }
+      container.appendChild(frag);
+    })();
+  </script>
+</body>
+</html>
