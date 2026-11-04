@@ -7,23 +7,22 @@
   <meta name="description" content="Ferramenta de pronúncia em inglês: digite um texto, ouça a leitura e avalie sua pronúncia.">
   <meta name="theme-color" content="#0a0a0a">
   <title>Leitor Interativo</title>
-    <!-- Open Graph -->
-    <meta property="og:type" content="website">
-    <meta property="og:locale" content="pt_BR">
-    <meta property="og:site_name" content="Leitor Interativo">
-    <meta property="og:title" content="Praticar Pronúncia — Leitor Interativo">
-    <meta property="og:description" content="Digite um texto em inglês, ouça a leitura e avalie sua pronúncia na hora.">
-    <meta property="og:url" content="https://dididoingles.github.io/leitor/home/">
-    <meta property="og:image" content="https://dididoingles.github.io/leitor/metatag.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Praticar Pronúncia — Leitor Interativo">
-  
-    <!-- Twitter / X -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Praticar Pronúncia — Leitor Interativo">
-    <meta name="twitter:description" content="Digite um texto em inglês, ouça a leitura e avalie sua pronúncia na hora.">
-    <meta name="twitter:image" content="https://dididoingles.github.io/leitor/metatag.jpg">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Leitor Interativo">
+  <meta property="og:title" content="Praticar Pronúncia — Leitor Interativo">
+  <meta property="og:description" content="Digite um texto em inglês, ouça a leitura e avalie sua pronúncia na hora.">
+  <meta property="og:url" content="https://dididoingles.github.io/leitor/home/">
+  <meta property="og:image" content="https://dididoingles.github.io/leitor/metatag.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Praticar Pronúncia — Leitor Interativo">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Praticar Pronúncia — Leitor Interativo">
+  <meta name="twitter:description" content="Digite um texto em inglês, ouça a leitura e avalie sua pronúncia na hora.">
+  <meta name="twitter:image" content="https://dididoingles.github.io/leitor/metatag.jpg">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,9 +30,6 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
-    /* ==========================================
-       DESIGN TOKENS
-       ========================================== */
     :root {
       --color-bg: #0a0a0a;
       --color-surface: rgba(255, 255, 255, 0.05);
@@ -72,20 +68,11 @@
       --duration-fast: 180ms;
     }
 
-    /* ==========================================
-       RESET / BASE
-       ========================================== */
-    *, *::before, *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     html { color-scheme: dark; }
 
     body {
       font-family: var(--font-family);
-      /* Glow radial sutil + fundo base, tudo na paleta vermelha */
       background:
         radial-gradient(circle at 50% -10%, rgba(194, 0, 0, 0.10), transparent 55%),
         radial-gradient(circle at 110% 110%, rgba(194, 0, 0, 0.05), transparent 50%),
@@ -104,15 +91,9 @@
       position: relative;
     }
 
-    /* ==========================================
-       CAMADA DECORATIVA: ONDAS NO RODAPÉ
-       (atrás de tudo, bem transparente)
-       ========================================== */
     .bg-waves {
       position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
+      bottom: 0; left: 0; right: 0;
       height: 140px;
       display: flex;
       align-items: flex-end;
@@ -125,7 +106,6 @@
       mask-image: linear-gradient(to top, #000 10%, transparent 100%);
       -webkit-mask-image: linear-gradient(to top, #000 10%, transparent 100%);
     }
-
     .bg-waves span {
       flex: 1 1 0;
       min-width: 2px;
@@ -137,9 +117,6 @@
       transform-origin: bottom;
     }
 
-    /* ==========================================
-       APP CONTAINER
-       ========================================== */
     .app-wrapper {
       position: relative;
       z-index: 1;
@@ -153,15 +130,8 @@
       animation: fadeIn 0.5s var(--ease-out) 0.1s forwards;
     }
 
-    /* ==========================================
-       HEADER
-       ========================================== */
-    .header {
-      text-align: center;
-      margin-bottom: var(--space-5);
-      flex-shrink: 0;
-    }
-
+    /* HEADER */
+    .header { text-align: center; margin-bottom: var(--space-5); flex-shrink: 0; }
     .header__logo {
       display: flex;
       align-items: center;
@@ -169,24 +139,9 @@
       gap: var(--space-2);
       margin-bottom: var(--space-1);
     }
-
-    .header__logo svg {
-      width: 28px;
-      height: 28px;
-      color: var(--color-accent);
-    }
-
-    .header h1 {
-      font-size: var(--text-lg);
-      font-weight: 600;
-      letter-spacing: -0.02em;
-    }
-
-    .header p {
-      font-size: var(--text-xs);
-      color: var(--color-text-dim);
-      font-weight: 300;
-    }
+    .header__logo svg { width: 28px; height: 28px; color: var(--color-accent); }
+    .header h1 { font-size: var(--text-lg); font-weight: 600; letter-spacing: -0.02em; }
+    .header p { font-size: var(--text-xs); color: var(--color-text-dim); font-weight: 300; }
 
     .main-title {
       font-size: var(--text-base);
@@ -198,17 +153,14 @@
       flex-shrink: 0;
     }
 
-    /* ==========================================
-       INPUT AREA
-       ========================================== */
+    /* INPUT */
     .input-area {
       display: flex;
       flex-direction: column;
       flex: 1;
       min-height: 80px;
-      margin-bottom: var(--space-4);
+      margin-bottom: var(--space-3);
     }
-
     .input-area label {
       font-size: var(--text-xs);
       font-weight: 500;
@@ -218,7 +170,6 @@
       margin-bottom: var(--space-2);
       flex-shrink: 0;
     }
-
     .input-area textarea {
       width: 100%;
       flex: 1;
@@ -234,7 +185,6 @@
       transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
-
     .input-area textarea:focus-visible {
       outline: none;
       border-color: var(--color-accent);
@@ -242,13 +192,61 @@
     }
 
     /* ==========================================
-       CONTROLES PRINCIPAIS
+       PLAYER DE ÁUDIO
        ========================================== */
-    .main-actions {
+    .audio-player {
       display: flex;
+      align-items: center;
       gap: var(--space-3);
-      margin-bottom: var(--space-5);
+      padding: var(--space-2) var(--space-3);
+      background: #151515;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-3);
       flex-shrink: 0;
+      transition: border-color var(--duration-fast) ease;
+    }
+    .audio-player.is-active {
+      border-color: rgba(194, 0, 0, 0.4);
+    }
+
+    .audio-player__time {
+      font-size: 0.7rem;
+      font-variant-numeric: tabular-nums;
+      color: var(--color-text-muted);
+      min-width: 34px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .audio-player__track {
+      flex: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .audio-player__fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(to right, var(--color-accent), var(--color-accent-hover));
+      border-radius: 3px;
+      transition: width 0.1s linear;
+      pointer-events: none;
+    }
+
+    /* ==========================================
+       BARRA DE CONTROLES (linha única)
+       ========================================== */
+    .controls-row {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+      flex-shrink: 0;
+      align-items: stretch;
     }
 
     .btn {
@@ -256,8 +254,9 @@
       align-items: center;
       justify-content: center;
       gap: var(--space-2);
-      padding: 0 var(--space-4);
+      padding: 0 var(--space-3);
       height: 44px;
+      min-height: 44px;
       border: 1px solid transparent;
       border-radius: var(--radius-md);
       font-family: inherit;
@@ -267,14 +266,15 @@
       transition: all var(--duration-fast) ease;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
+      white-space: nowrap;
+      text-decoration: none;
+      flex-shrink: 0;
     }
-
-    .btn svg { width: 18px; height: 18px; }
+    .btn svg { width: 18px; height: 18px; flex-shrink: 0; }
 
     .btn--primary {
       background: var(--color-accent);
       color: #fff;
-      flex: 1;
     }
     .btn--primary:hover:not(:disabled) { background: var(--color-accent-hover); }
 
@@ -282,7 +282,6 @@
       background: var(--color-surface-hover);
       color: var(--color-text);
       border-color: var(--color-border);
-      flex: 0.7;
     }
     .btn--secondary:hover:not(:disabled) { background: rgba(255, 255, 255, 0.14); }
 
@@ -290,22 +289,65 @@
       background: #151515;
       border: 1px solid var(--color-accent);
       color: #fff;
-      flex: 1.5;
+      flex: 1;
+      min-width: 0;
     }
     .btn--record:hover:not(:disabled) { background: #2a0a0a; }
-
     .btn--record.listening {
       background: var(--color-error);
       border-color: var(--color-error);
       animation: pulse-border 1.5s infinite;
     }
 
-    /* Pulso no ícone do botão Ouvir enquanto reproduz */
-    #tts-play.is-playing svg {
-      animation: pulse 1.2s infinite;
+    .btn--scan {
+      background: #151515;
+      border: 1px solid var(--color-border-strong);
+      color: var(--color-text);
+      text-decoration: none;
     }
+    .btn--scan:hover { border-color: var(--color-accent); background: rgba(255, 255, 255, 0.06); }
 
-    /* Barrinhas animadas dentro do botão "Cancelar gravação" */
+    /* Botão Ouvir/Pausar unificado */
+    .btn--play {
+      min-width: 100px;
+    }
+    .btn--play.is-playing {
+      background: #151515;
+      border: 1px solid var(--color-accent);
+      color: #fff;
+    }
+    .btn--play.is-playing:hover { background: #2a0a0a; }
+
+    /* Seletor de voz compacto */
+    .voice-selector {
+      flex: 1 1 180px;
+      min-width: 140px;
+      height: 44px;
+    }
+    .voice-selector select {
+      width: 100%;
+      height: 100%;
+      padding: 0 var(--space-3);
+      padding-right: calc(var(--space-3) + 18px);
+      background: #151515;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      color: var(--color-text);
+      font-family: inherit;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='0.6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right var(--space-2) center;
+    }
+    .voice-selector select:focus-visible { outline: none; border-color: var(--color-accent); }
+    .voice-selector select option { background: #1a1a1a; }
+
+    /* Barrinhas animadas do botão praticar */
     .btn--record .rec-bars {
       display: inline-flex;
       align-items: center;
@@ -325,74 +367,26 @@
     .btn--record .rec-bars span:nth-child(3) { animation-delay: 0.30s; }
 
     /* ==========================================
-       CONTROLES SECUNDÁRIOS
+       CONTROLE DE VELOCIDADE (linha extra)
        ========================================== */
-    .secondary-controls {
-      display: flex;
-      gap: var(--space-4);
-      align-items: center;
-      flex-wrap: wrap;
-      flex-shrink: 0;
-    }
-
-    .voice-selector {
-      flex: 1;
-      min-width: 140px;
-      height: 40px;
-    }
-
-    .voice-selector select {
-      width: 100%;
-      height: 100%;
-      padding: 0 var(--space-3);
-      background: #151515;
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      color: var(--color-text);
-      font-family: inherit;
-      font-size: var(--text-sm);
-      cursor: pointer;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='0.6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right var(--space-2) center;
-      padding-right: var(--space-6);
-    }
-    .voice-selector select:focus-visible { outline: none; border-color: var(--color-accent); }
-    .voice-selector select option { background: #1a1a1a; }
-
     .speed-control {
-      flex: 1.5;
-      min-width: 180px;
       display: flex;
       flex-direction: column;
       justify-content: center;
+      margin-bottom: var(--space-3);
+      flex-shrink: 0;
     }
-
     .speed-control__header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: var(--space-1);
     }
+    .speed-control__header label { font-size: var(--text-xs); color: var(--color-text-dim); }
+    .speed-control__value { font-size: var(--text-xs); font-weight: 600; color: var(--color-text); }
 
-    .speed-control__header label {
-      font-size: var(--text-xs);
-      color: var(--color-text-dim);
-    }
-
-    .speed-control__value {
-      font-size: var(--text-xs);
-      font-weight: 600;
-      color: var(--color-text);
-    }
-
-    /* ==========================================
-       SLIDER DE VELOCIDADE (COM PREENCHIMENTO)
-       ========================================== */
     .speed-control input[type="range"] {
-      width: 100%;
-      height: 4px;
+      width: 100%; height: 4px;
       appearance: none;
       -webkit-appearance: none;
       background: linear-gradient(to right, var(--color-accent) var(--value, 33%), var(--color-border) var(--value, 33%));
@@ -400,22 +394,18 @@
       outline: none;
       cursor: pointer;
     }
-
     .speed-control input[type="range"]::-webkit-slider-thumb {
       appearance: none;
       -webkit-appearance: none;
-      width: 16px;
-      height: 16px;
+      width: 16px; height: 16px;
       border-radius: 50%;
       background: var(--color-accent);
       border: none;
       cursor: pointer;
       box-shadow: 0 0 0 2px var(--color-bg);
     }
-
     .speed-control input[type="range"]::-moz-range-thumb {
-      width: 16px;
-      height: 16px;
+      width: 16px; height: 16px;
       border-radius: 50%;
       background: var(--color-accent);
       border: none;
@@ -423,22 +413,19 @@
       box-shadow: 0 0 0 2px var(--color-bg);
     }
 
-    /* ==========================================
-       STATUS BAR
-       ========================================== */
+    /* STATUS */
     .status {
       display: flex;
       justify-content: center;
       align-items: center;
       width: 100%;
-      padding-top: var(--space-6);
-      min-height: 48px;
+      padding-top: var(--space-3);
+      min-height: 40px;
       flex-shrink: 0;
       border-top: 1px solid rgba(255, 255, 255, 0.05);
-      margin-top: var(--space-4);
+      margin-top: var(--space-2);
       color: var(--color-text-dim);
     }
-
     .status-content {
       display: inline-flex;
       align-items: center;
@@ -447,30 +434,19 @@
       max-width: 90%;
       text-align: center;
     }
-
     .status-icon {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 16px;
-      height: 16px;
+      width: 16px; height: 16px;
       flex-shrink: 0;
     }
-
-    .status-icon svg {
-      width: 100%;
-      height: 100%;
-    }
-
-    #tts-status-text {
-      font-size: var(--text-xs);
-      line-height: 1.4;
-    }
-
+    .status-icon svg { width: 100%; height: 100%; }
+    #tts-status-text { font-size: var(--text-xs); line-height: 1.4; }
     .status--playing .status-icon svg { animation: pulse 1.2s infinite; }
 
     /* ==========================================
-       MODAL DE FEEDBACK (REFINADO)
+       MODAL DE FEEDBACK
        ========================================== */
     .modal-overlay {
       position: fixed;
@@ -509,13 +485,10 @@
     }
     .modal-overlay.show .modal-content { transform: scale(1) translateY(0); }
 
-    /* Ícone circular de status — canto superior esquerdo */
     .modal-icon {
       position: absolute;
-      top: var(--space-4);
-      left: var(--space-4);
-      width: 36px;
-      height: 36px;
+      top: var(--space-4); left: var(--space-4);
+      width: 36px; height: 36px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -542,21 +515,17 @@
       background: rgba(248, 113, 113, 0.10);
     }
 
-    /* Anel de progresso do score */
     .modal-score-wrap {
       position: relative;
-      width: 112px;
-      height: 112px;
+      width: 112px; height: 112px;
       margin: 0 auto var(--space-3);
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .modal-score-ring {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
       transform: rotate(-90deg);
     }
     .modal-score-ring circle {
@@ -571,7 +540,6 @@
       stroke-dashoffset: 326.7;
       transition: stroke-dashoffset 0.9s var(--ease-out), stroke 0.4s ease;
     }
-
     .modal-score {
       position: relative;
       font-size: 2rem;
@@ -581,7 +549,6 @@
       color: var(--color-text);
       transition: color 0.3s ease;
     }
-
     .modal-message {
       font-size: var(--text-sm);
       font-weight: 500;
@@ -590,7 +557,6 @@
       transition: color 0.3s ease;
     }
 
-    /* Detalhes (Eu ouvi) */
     .modal-details {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--color-border);
@@ -599,11 +565,7 @@
       margin-bottom: var(--space-3);
       text-align: left;
     }
-    .modal-detail-row {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
+    .modal-detail-row { display: flex; flex-direction: column; gap: 2px; }
     .modal-detail-label {
       display: inline-flex;
       align-items: center;
@@ -623,8 +585,6 @@
       line-height: 1.4;
       word-break: break-word;
     }
-
-    /* Aviso de precisão — compacto */
     .modal-note {
       display: flex;
       align-items: center;
@@ -636,27 +596,12 @@
       padding: 0 var(--space-1);
       margin-bottom: var(--space-4);
     }
-    .modal-note svg {
-      width: 13px;
-      height: 13px;
-      flex-shrink: 0;
-      color: var(--color-text-muted);
-    }
+    .modal-note svg { width: 13px; height: 13px; flex-shrink: 0; color: var(--color-text-muted); }
     .modal-note span { flex: 1; }
 
-    /* Botão do modal */
     .btn-modal-close {
       width: 100%;
       justify-content: center;
-    }
-
-    /* Ajuste fino no mobile */
-    @media (max-width: 380px) {
-      .modal-content { padding: var(--space-5) var(--space-4) var(--space-3); }
-      .modal-icon { width: 32px; height: 32px; top: var(--space-3); left: var(--space-3); }
-      .modal-icon svg { width: 16px; height: 16px; }
-      .modal-score-wrap { width: 96px; height: 96px; }
-      .modal-score { font-size: 1.75rem; }
     }
 
     /* ==========================================
@@ -675,30 +620,104 @@
     }
 
     /* ==========================================
-       RESPONSIVO
+       DESKTOP (≥769px)
        ========================================== */
-    @media (max-width: 768px) {
-      body {
-        height: auto;
-        min-height: 100vh;
-        overflow-y: auto;
-        padding: var(--space-4);
-        align-items: flex-start;
+    @media (min-width: 769px) {
+      :root {
+        --text-xs: 0.8125rem;
+        --text-sm: 0.9375rem;
+        --text-base: 1.125rem;
+        --text-lg: 1.375rem;
       }
-      .app-wrapper { max-height: none; margin-top: var(--space-2); }
-      .input-area textarea { min-height: 120px; resize: vertical; }
-    }
+      .app-wrapper { max-width: 960px; }
+      .header { margin-bottom: var(--space-4); }
+      .header__logo svg { width: 32px; height: 32px; }
+      .main-title { margin-bottom: var(--space-3); }
 
-    @media (max-width: 600px) {
-      .main-actions { flex-wrap: wrap; }
-      .btn--record { width: 100%; flex: 1 1 100%; order: -1; margin-bottom: var(--space-1); }
-      .btn--primary, .btn--secondary { flex: 1; }
+      .input-area { margin-bottom: var(--space-2); }
+      .input-area textarea {
+        font-size: var(--text-base);
+        min-height: 160px;
+        max-height: 240px;
+        padding: var(--space-5);
+      }
 
-      .secondary-controls { flex-direction: column; gap: var(--space-2); }
-      .voice-selector, .speed-control { width: 100%; min-width: 100%; }
+      .btn { height: 44px; font-size: var(--text-sm); }
+      .btn svg { width: 18px; height: 18px; }
       .voice-selector { height: 44px; }
 
-      .header p { display: none; }
+      .status { padding-top: 20px; min-height: 48px; }
+      .status-icon { width: 18px; height: 18px; }
+      #tts-status-text { font-size: var(--text-sm); }
+
+      .bg-waves { height: 180px; opacity: 0.10; }
+    }
+
+    /* ==========================================
+       MOBILE (≤768px)
+       ========================================== */
+       @media (max-width: 768px) {
+  body {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+    padding: var(--space-3);
+    align-items: flex-start;
+  }
+  .app-wrapper { max-height: none; margin-top: var(--space-2); }
+  .input-area textarea { min-height: 140px; resize: vertical; }
+
+  /* Mobile: 2 botões por linha, com texto visível */
+  .controls-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+  }
+
+  .controls-row .btn {
+    flex: initial;
+    width: 100%;
+    min-width: 0;
+    height: 48px;
+    min-height: 48px;
+    padding: 0 var(--space-2);
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+  }
+  .controls-row .btn svg { width: 18px; height: 18px; }
+  .controls-row .btn span { display: inline; }
+
+  /* Seletor de voz ocupa a célula como os outros botões */
+  .voice-selector {
+    flex: initial;
+    width: 100%;
+    min-width: 0;
+    height: 48px;
+  }
+  .voice-selector select {
+    height: 48px;
+    padding: 0 var(--space-2);
+    padding-right: calc(var(--space-2) + 18px);
+    font-size: var(--text-xs);
+    text-align: left;
+    background-position: right var(--space-2) center;
+  }
+
+  .audio-player { padding: var(--space-2); }
+  .audio-player__time { font-size: 0.65rem; min-width: 28px; }
+
+  .header p { display: none; }
+  .header { margin-bottom: var(--space-4); }
+
+  .speed-control { margin-bottom: var(--space-2); }
+}
+
+    @media (max-width: 380px) {
+      .modal-content { padding: var(--space-5) var(--space-4) var(--space-3); }
+      .modal-icon { width: 32px; height: 32px; top: var(--space-3); left: var(--space-3); }
+      .modal-icon svg { width: 16px; height: 16px; }
+      .modal-score-wrap { width: 96px; height: 96px; }
+      .modal-score { font-size: 1.75rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -709,44 +728,12 @@
       .bg-waves { display: none; }
       .status--playing .status-icon svg,
       .btn--record.listening,
-      #tts-play.is-playing svg,
       .btn--record .rec-bars span { animation: none; }
-    }
-
-    /* ==========================================
-       AJUSTES ESPECÍFICOS PARA DESKTOP
-       ========================================== */
-    @media (min-width: 769px) {
-      :root {
-        --text-xs: 0.8125rem;
-        --text-sm: 0.9375rem;
-        --text-base: 1.125rem;
-        --text-lg: 1.375rem;
-      }
-      .app-wrapper { max-width: 780px; }
-      .header { margin-bottom: var(--space-6); }
-      .header__logo svg { width: 36px; height: 36px; }
-      .input-area textarea { font-size: var(--text-base); min-height: 200px; padding: var(--space-6); }
-      .btn { height: 48px; font-size: var(--text-sm); }
-      .btn svg { width: 20px; height: 20px; }
-      .voice-selector { height: 44px; }
-      .speed-control__header label, .speed-control__value { font-size: var(--text-sm); }
-
-      .speed-control input[type="range"] { height: 6px; }
-      .speed-control input[type="range"]::-webkit-slider-thumb { width: 20px; height: 20px; }
-      .speed-control input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; }
-
-      .status { padding-top: 32px; min-height: 64px; }
-      .status-icon { width: 18px; height: 18px; }
-      #tts-status-text { font-size: var(--text-sm); }
-
-      .bg-waves { height: 180px; opacity: 0.10; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Camada decorativa: ondas no rodapé -->
   <div class="bg-waves" id="bg-waves" aria-hidden="true"></div>
 
   <main class="app-wrapper">
@@ -770,37 +757,49 @@
       >Hello, how are you today?</textarea>
     </div>
 
-    <div class="main-actions">
-      <button class="btn btn--primary" id="tts-play" type="button">
+    <!-- PLAYER DE ÁUDIO -->
+    <div class="audio-player" id="audio-player">
+      <span class="audio-player__time" id="player-current">0:00</span>
+      <div class="audio-player__track" id="player-track" role="progressbar" aria-label="Progresso do áudio" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="audio-player__fill" id="player-fill"></div>
+      </div>
+      <span class="audio-player__time" id="player-duration">0:00</span>
+    </div>
+
+    <!-- CONTROLES PRINCIPAIS -->
+    <div class="controls-row">
+      <button class="btn btn--primary btn--play" id="tts-play" type="button">
         <i data-lucide="play" aria-hidden="true"></i>
-        <span>Ouvir</span>
+        <span id="tts-play-label">Ouvir</span>
       </button>
-      <button class="btn btn--secondary" id="tts-stop" type="button">
-        <i data-lucide="square" aria-hidden="true"></i>
-        <span>Parar</span>
-      </button>
+
       <button class="btn btn--record" id="btn-practice" type="button">
         <i data-lucide="mic" aria-hidden="true"></i>
         <span>Praticar Pronúncia</span>
       </button>
-    </div>
 
-    <div class="secondary-controls">
       <div class="voice-selector">
         <select id="tts-voice" aria-label="Escolha uma voz">
           <option value="">Escolha uma voz</option>
         </select>
       </div>
 
-      <div class="speed-control">
-        <div class="speed-control__header">
-          <label for="speed-slider">Velocidade</label>
-          <span class="speed-control__value" id="speed-display">1.0x</span>
-        </div>
-        <input type="range" id="speed-slider" min="0.5" max="2.0" step="0.1" value="1.0" style="--value: 33.33%;">
-      </div>
+      <a class="btn btn--scan" href="../scanner/index.html" title="Usar imagem (Scanner de Pronúncia)">
+        <i data-lucide="scan-line" aria-hidden="true"></i>
+        <span>Usar imagem</span>
+      </a>
     </div>
 
+    <!-- VELOCIDADE -->
+    <div class="speed-control">
+      <div class="speed-control__header">
+        <label for="speed-slider">Velocidade</label>
+        <span class="speed-control__value" id="speed-display">1.0x</span>
+      </div>
+      <input type="range" id="speed-slider" min="0.5" max="2.0" step="0.1" value="1.0" style="--value: 33.33%;">
+    </div>
+
+    <!-- STATUS -->
     <div class="status" id="tts-status" role="status" aria-live="polite">
       <div class="status-content">
         <div class="status-icon" id="status-icon-container">
@@ -811,7 +810,7 @@
     </div>
   </main>
 
-  <!-- MODAL DE FEEDBACK (REFINADO) -->
+  <!-- MODAL DE FEEDBACK -->
   <div class="modal-overlay" id="feedback-modal">
     <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-message">
       <div class="modal-icon" id="modal-icon">
@@ -855,9 +854,7 @@
 
     lucide.createIcons();
 
-    // ==========================================
-    // ONDAS DECORATIVAS NO RODAPÉ
-    // ==========================================
+    // ONDAS DECORATIVAS
     (function buildWaves() {
       const container = document.getElementById('bg-waves');
       if (!container) return;
@@ -872,20 +869,24 @@
       container.appendChild(frag);
     })();
 
-    // ==========================================
     // REFERÊNCIAS DOM
-    // ==========================================
     const els = {
-      text:    document.getElementById('tts-text'),
-      play:    document.getElementById('tts-play'),
-      stop:    document.getElementById('tts-stop'),
-      voice:   document.getElementById('tts-voice'),
-      slider:  document.getElementById('speed-slider'),
-      speed:   document.getElementById('speed-display'),
+      text: document.getElementById('tts-text'),
+      play: document.getElementById('tts-play'),
+      playLabel: document.getElementById('tts-play-label'),
+      voice: document.getElementById('tts-voice'),
+      slider: document.getElementById('speed-slider'),
+      speed: document.getElementById('speed-display'),
       btnPractice: document.getElementById('btn-practice'),
-      status:  document.getElementById('tts-status'),
+      status: document.getElementById('tts-status'),
       statusText: document.getElementById('tts-status-text'),
       statusIconContainer: document.getElementById('status-icon-container'),
+
+      player: document.getElementById('audio-player'),
+      playerFill: document.getElementById('player-fill'),
+      playerTrack: document.getElementById('player-track'),
+      playerCurrent: document.getElementById('player-current'),
+      playerDuration: document.getElementById('player-duration'),
 
       modal: document.getElementById('feedback-modal'),
       modalScore: document.getElementById('modal-score'),
@@ -894,9 +895,7 @@
       btnModalClose: document.getElementById('btn-modal-close'),
     };
 
-    // ==========================================
-    // CONFIGURAÇÃO DE TTS E STT
-    // ==========================================
+    // CONFIG TTS/STT
     const synth = window.speechSynthesis;
     const supportedTTS = 'speechSynthesis' in window;
 
@@ -916,13 +915,18 @@
 
     const state = {
       speaking: false,
+      paused: false,
       listening: false,
       resetTimer: null,
+      playerInterval: null,
+      estimatedDuration: 0,
+      currentProgress: 0,
     };
 
     const STATUS = {
       ready:     { icon: 'check-circle-2', text: 'Pronto para ler' },
       playing:   { icon: 'volume-2',       text: 'Reproduzindo...' },
+      paused:    { icon: 'pause',          text: 'Pausado' },
       done:      { icon: 'check-circle-2', text: 'Leitura concluída' },
       stopped:   { icon: 'square',         text: 'Parado' },
       warning:   { icon: 'alert-triangle', text: 'Aviso' },
@@ -930,14 +934,9 @@
       listening: { icon: 'mic',            text: 'Ouvindo... Fale agora!' },
     };
 
-    // ==========================================
-    // HELPERS DE UI
-    // ==========================================
     function setStatus(key, customText = null) {
       const conf = STATUS[key] || STATUS.ready;
-
       els.statusText.textContent = customText || conf.text;
-
       els.statusIconContainer.innerHTML = `<i data-lucide="${conf.icon}"></i>`;
       lucide.createIcons({ nodes: [els.statusIconContainer] });
 
@@ -956,7 +955,102 @@
     }
 
     // ==========================================
-    // MODAL DE FEEDBACK
+    // PLAYER — estimativa de duração e progresso
+    // ==========================================
+    function formatTime(sec) {
+      sec = Math.max(0, Math.round(sec));
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${m}:${String(s).padStart(2, '0')}`;
+    }
+
+    function estimateDuration(text, rate) {
+      // ~150 palavras por minuto em inglês é uma média razoável
+      const words = (text || '').trim().split(/\s+/).filter(Boolean).length;
+      if (!words) return 0;
+      const baseSeconds = (words / 150) * 60;
+      return baseSeconds / Math.max(0.1, rate);
+    }
+
+    function updatePlayerProgress() {
+      if (!state.estimatedDuration) return;
+      const elapsed = state.currentProgress;
+      const ratio = Math.min(1, elapsed / state.estimatedDuration);
+      els.playerFill.style.width = `${ratio * 100}%`;
+      els.playerCurrent.textContent = formatTime(elapsed);
+      els.playerTrack.setAttribute('aria-valuenow', Math.round(ratio * 100));
+    }
+
+    function resetPlayer() {
+      clearInterval(state.playerInterval);
+      state.playerInterval = null;
+      state.currentProgress = 0;
+      state.estimatedDuration = 0;
+      els.playerFill.style.width = '0%';
+      els.playerCurrent.textContent = '0:00';
+      els.playerDuration.textContent = '0:00';
+      els.player.classList.remove('is-active');
+    }
+
+    function startPlayerTracking(duration) {
+      clearInterval(state.playerInterval);
+      state.estimatedDuration = duration;
+      state.currentProgress = 0;
+      els.playerDuration.textContent = formatTime(duration);
+      els.player.classList.add('is-active');
+
+      const tick = 0.1; // 100ms
+      state.playerInterval = setInterval(() => {
+        if (!state.speaking || state.paused) return;
+        state.currentProgress = Math.min(duration, state.currentProgress + tick);
+        updatePlayerProgress();
+        if (state.currentProgress >= duration) {
+          clearInterval(state.playerInterval);
+          state.playerInterval = null;
+        }
+      }, 100);
+    }
+
+    function pausePlayer() {
+      clearInterval(state.playerInterval);
+      state.playerInterval = null;
+    }
+
+    function resumePlayer() {
+      if (!state.estimatedDuration) return;
+      clearInterval(state.playerInterval);
+      const tick = 0.1;
+      state.playerInterval = setInterval(() => {
+        if (!state.speaking || state.paused) return;
+        state.currentProgress = Math.min(state.estimatedDuration, state.currentProgress + tick);
+        updatePlayerProgress();
+        if (state.currentProgress >= state.estimatedDuration) {
+          clearInterval(state.playerInterval);
+          state.playerInterval = null;
+        }
+      }, 100);
+    }
+
+    // ==========================================
+    // BOTÃO UNIFICADO OUVIR / PAUSAR
+    // ==========================================
+    function updatePlayButton() {
+      if (state.speaking && !state.paused) {
+        els.play.classList.add('is-playing');
+        els.play.innerHTML = '<i data-lucide="pause" aria-hidden="true"></i><span id="tts-play-label">Pausar</span>';
+      } else if (state.paused) {
+        els.play.classList.remove('is-playing');
+        els.play.innerHTML = '<i data-lucide="play" aria-hidden="true"></i><span id="tts-play-label">Retomar</span>';
+      } else {
+        els.play.classList.remove('is-playing');
+        els.play.innerHTML = '<i data-lucide="play" aria-hidden="true"></i><span id="tts-play-label">Ouvir</span>';
+      }
+      els.playLabel = document.getElementById('tts-play-label');
+      lucide.createIcons({ nodes: [els.play] });
+    }
+
+    // ==========================================
+    // MODAL
     // ==========================================
     function openModal(score, heardText) {
       let stateKey = 'error';
@@ -964,13 +1058,9 @@
       let msg      = 'Continue praticando!';
 
       if (score >= 85) {
-        stateKey = 'success';
-        color    = 'var(--color-success)';
-        msg      = 'Mandou bem!';
+        stateKey = 'success'; color = 'var(--color-success)'; msg = 'Mandou bem!';
       } else if (score >= 60) {
-        stateKey = 'warning';
-        color    = 'var(--color-warning)';
-        msg      = 'Bom, mas pode melhorar!';
+        stateKey = 'warning'; color = 'var(--color-warning)'; msg = 'Bom, mas pode melhorar!';
       }
 
       els.modalScore.textContent = `${score}%`;
@@ -1001,12 +1091,11 @@
 
     function closeModal() {
       els.modal.classList.remove('show');
-      els.statusText.focus();
       if (!state.speaking && !state.listening) setStatus('ready');
     }
 
     // ==========================================
-    // LÓGICA DE TTS (Ouvir)
+    // TTS
     // ==========================================
     function populateVoices() {
       if (!supportedTTS) return;
@@ -1030,24 +1119,29 @@
       synth.onvoiceschanged = populateVoices;
     }
 
-    // ==========================================
-    // CONTROLE DO SLIDER
-    // ==========================================
     els.slider.addEventListener('input', () => {
       const v = parseFloat(els.slider.value);
       els.speed.textContent = v.toFixed(1) + 'x';
-
       const min = parseFloat(els.slider.min);
       const max = parseFloat(els.slider.max);
       const percent = ((v - min) / (max - min)) * 100;
-
       els.slider.style.setProperty('--value', `${percent}%`);
     });
-
     els.slider.dispatchEvent(new Event('input'));
 
     function speak() {
       if (!supportedTTS) return;
+
+      // Se já está falando, pausa; se está pausado, retoma
+      if (state.speaking && !state.paused) {
+        pauseSpeech();
+        return;
+      }
+      if (state.paused) {
+        resumeSpeech();
+        return;
+      }
+
       if (synth.speaking) synth.cancel();
 
       const text = els.text.value.trim();
@@ -1057,10 +1151,11 @@
         return;
       }
 
+      const rate = parseFloat(els.slider.value);
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang   = 'en-US';
-      utterance.rate   = parseFloat(els.slider.value);
-      utterance.pitch  = 1;
+      utterance.lang = 'en-US';
+      utterance.rate = rate;
+      utterance.pitch = 1;
       utterance.volume = 1;
 
       const chosen = els.voice.value;
@@ -1071,20 +1166,26 @@
 
       utterance.onstart = () => {
         state.speaking = true;
-        els.play.classList.add('is-playing');
+        state.paused = false;
+        updatePlayButton();
         setStatus('playing');
+        startPlayerTracking(estimateDuration(text, rate));
       };
 
       utterance.onend = () => {
         state.speaking = false;
-        els.play.classList.remove('is-playing');
+        state.paused = false;
+        updatePlayButton();
+        resetPlayer();
         setStatus('done');
         scheduleReset(3000);
       };
 
       utterance.onerror = (e) => {
         state.speaking = false;
-        els.play.classList.remove('is-playing');
+        state.paused = false;
+        updatePlayButton();
+        resetPlayer();
         if (e.error === 'interrupted' || e.error === 'canceled') return;
         setStatus('error', 'Erro na leitura');
         scheduleReset(3500);
@@ -1093,19 +1194,39 @@
       synth.speak(utterance);
     }
 
+    function pauseSpeech() {
+      if (!synth.speaking) return;
+      synth.pause();
+      state.paused = true;
+      updatePlayButton();
+      setStatus('paused');
+      pausePlayer();
+    }
+
+    function resumeSpeech() {
+      if (!synth.paused) return;
+      synth.resume();
+      state.paused = false;
+      updatePlayButton();
+      setStatus('playing');
+      resumePlayer();
+    }
+
     function stop() {
       if (!supportedTTS) return;
       if (synth.speaking || synth.pending) {
         synth.cancel();
-        state.speaking = false;
-        els.play.classList.remove('is-playing');
-        setStatus('stopped');
-        scheduleReset(2000);
       }
+      state.speaking = false;
+      state.paused = false;
+      updatePlayButton();
+      resetPlayer();
+      setStatus('stopped');
+      scheduleReset(2000);
     }
 
     // ==========================================
-    // LÓGICA DE AVALIAÇÃO E CANCELAMENTO
+    // PRÁTICA / STT
     // ==========================================
     function resetPracticeButton() {
       state.listening = false;
@@ -1124,17 +1245,15 @@
     }
 
     function startPractice() {
-      if (state.listening) {
-        cancelPractice();
-        return;
-      }
-
+      if (state.listening) { cancelPractice(); return; }
       if (!supportedSTT) return;
 
       if (synth.speaking) {
         synth.cancel();
         state.speaking = false;
-        els.play.classList.remove('is-playing');
+        state.paused = false;
+        updatePlayButton();
+        resetPlayer();
       }
 
       const textToSpeak = els.text.value.trim();
@@ -1159,7 +1278,6 @@
       recognition.onresult = (event) => {
         const spokenText = event.results[0][0].transcript;
         const score = calculateSimilarity(els.text.value.trim(), spokenText);
-
         resetPracticeButton();
         setStatus('done', 'Avaliação concluída');
         openModal(score, spokenText);
@@ -1168,7 +1286,6 @@
       recognition.onerror = (event) => {
         resetPracticeButton();
         if (event.error === 'aborted') return;
-
         if (event.error === 'not-allowed') {
           setStatus('error', 'Permissão do microfone negada');
         } else if (event.error === 'no-speech') {
@@ -1180,12 +1297,10 @@
       };
     }
 
-    // Distância de Levenshtein
     function calculateSimilarity(original, spoken) {
       const normalize = (txt) => txt.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()?]/g,"").trim();
       const a = normalize(original);
       const b = normalize(spoken);
-
       if (a === b) return 100;
       if (b.length === 0) return 0;
 
@@ -1203,17 +1318,15 @@
           );
         }
       }
-
       const dist = matrix[b.length][a.length];
       const maxLen = Math.max(a.length, b.length);
       return Math.max(0, Math.round((1 - dist / maxLen) * 100));
     }
 
     // ==========================================
-    // EVENTOS GERAIS
+    // EVENTOS
     // ==========================================
     els.play.addEventListener('click', speak);
-    els.stop.addEventListener('click', stop);
     els.btnPractice.addEventListener('click', startPractice);
     els.btnModalClose.addEventListener('click', closeModal);
 
@@ -1232,7 +1345,9 @@
       if (document.hidden && synth.speaking) {
         synth.cancel();
         state.speaking = false;
-        els.play.classList.remove('is-playing');
+        state.paused = false;
+        updatePlayButton();
+        resetPlayer();
         setStatus('stopped');
       }
     });
@@ -1240,7 +1355,6 @@
     if (!supportedTTS) {
       setStatus('error', 'Navegador sem suporte a áudio');
       els.play.disabled = true;
-      els.stop.disabled = true;
     }
 
     els.text.focus();
