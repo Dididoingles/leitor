@@ -1,0 +1,2799 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+  <meta name="description" content="Scanner de pronúncia em inglês: tire uma foto de um texto, extraia o conteúdo e ouça a pronúncia.">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Leitor Interativo</title>
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Leitor Interativo">
+  <meta property="og:title" content="Leitor Interativo">
+  <meta property="og:description" content="Tire uma foto de um texto em inglês, extraia o conteúdo e ouça a pronúncia na hora.">
+  <meta property="og:url" content="https://dididoingles.github.io/leitor/scanner/">
+  <meta property="og:image" content="https://dididoingles.github.io/leitor/metatag.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Scanner - Leitor Interativo">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Scanner — Leitor Interativo">
+  <meta name="twitter:description" content="Tire uma foto de um texto em inglês, extraia o conteúdo e ouça a pronúncia na hora.">
+  <meta name="twitter:image" content="https://dididoingles.github.io/leitor/metatag.jpg">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <style>
+    :root {
+      --color-bg: #0a0a0a;
+      --color-surface: rgba(255, 255, 255, 0.05);
+      --color-surface-hover: rgba(255, 255, 255, 0.08);
+      --color-border: rgba(255, 255, 255, 0.12);
+      --color-border-strong: rgba(255, 255, 255, 0.2);
+      --color-accent: #c20000;
+      --color-accent-hover: #e00000;
+      --color-text: #ffffff;
+      --color-text-dim: rgba(255, 255, 255, 0.72);
+      --color-text-muted: rgba(255, 255, 255, 0.55);
+      --color-success: #4ade80;
+      --color-warning: #fbbf24;
+      --color-error: #f87171;
+
+      --font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+      --text-xs: 0.75rem;
+      --text-sm: 0.875rem;
+      --text-base: 1rem;
+      --text-lg: 1.125rem;
+
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+      --duration-fast: 180ms;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { color-scheme: dark; }
+
+    body {
+      font-family: var(--font-family);
+      background:
+        radial-gradient(circle at 50% -10%, rgba(194, 0, 0, 0.10), transparent 55%),
+        radial-gradient(circle at 110% 110%, rgba(194, 0, 0, 0.05), transparent 50%),
+        var(--color-bg);
+      background-attachment: fixed;
+      color: var(--color-text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      line-height: 1.5;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .bg-waves {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 140px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 4px;
+      padding: 0 2%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.09;
+      mask-image: linear-gradient(to top, #000 10%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to top, #000 10%, transparent 100%);
+    }
+
+    .bg-waves span {
+      flex: 1 1 0;
+      min-width: 2px;
+      max-width: 10px;
+      min-height: 6px;
+      border-radius: 3px;
+      background: linear-gradient(to top, var(--color-accent), transparent);
+      animation: waveBar 2.4s ease-in-out infinite;
+      transform-origin: bottom;
+    }
+
+    .app-wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - var(--space-8));
+      opacity: 0;
+      animation: fadeIn 0.5s var(--ease-out) 0.1s forwards;
+    }
+
+    .header { text-align: center; margin-bottom: var(--space-5); flex-shrink: 0; }
+
+    .header__logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-1);
+    }
+
+    .header__logo svg { width: 24px; height: 24px; color: var(--color-accent); }
+
+    .header h1 { font-size: var(--text-lg); font-weight: 600; letter-spacing: -0.02em; }
+
+    .header p {
+      font-size: var(--text-xs);
+      color: var(--color-text-dim);
+      font-weight: 300;
+      margin-bottom: var(--space-3);
+    }
+
+    .main-title {
+      font-size: var(--text-base);
+      font-weight: 500;
+      text-align: center;
+      margin-bottom: var(--space-4);
+      color: var(--color-text);
+      letter-spacing: -0.01em;
+      flex-shrink: 0;
+    }
+
+    /* ==========================================
+       CAPTURE AREA (desktop: grid 2 colunas)
+       ========================================== */
+    .capture-area {
+      display: grid;
+      grid-template-columns: 160px 1fr; /* Largura fixa para os botões, resto para a imagem */
+      grid-template-rows: auto auto;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+      flex-shrink: 0;
+      align-items: stretch;
+      padding-top: var(--space-5);
+    }
+
+    .capture-area .capture-actions {
+      grid-column: 1;
+      grid-row: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      justify-content: space-between;
+      justify-self: start;
+      width: 100%;
+    }
+
+    .capture-area .capture-actions .btn {
+      height: 48px;
+      min-height: 48px;
+      width: 100%;
+      padding: 0 var(--space-3);
+    }
+
+    .capture-buttons {
+      display: contents;
+    }
+
+    .file-input-hidden {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .preview-wrap {
+      grid-column: 2;
+      grid-row: 1;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 160px;
+      max-height: calc(48px * 3 + var(--space-3) * 2); /* Alinha com a altura dos botões */
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: #151515;
+      border: 1px dashed var(--color-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color var(--duration-fast) ease;
+    }
+
+    .preview-wrap.has-image { border-style: solid; border-color: var(--color-border-strong); }
+
+    .preview-wrap img {
+  position: absolute; 
+  inset: 0;           /* Cola nas 4 bordas */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+    .preview-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-6);
+      text-align: center;
+      color: var(--color-text-muted);
+      font-size: var(--text-sm);
+    }
+
+    .preview-placeholder svg { width: 40px; height: 40px; color: var(--color-text-muted); opacity: 0.6; }
+
+    .preview-actions {
+      position: absolute;
+      top: var(--space-2); right: var(--space-2);
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .btn-icon-overlay {
+      width: 36px; height: 36px;
+      border-radius: var(--radius-md);
+      background: rgba(0, 0, 0, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background var(--duration-fast) ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-icon-overlay:hover { background: rgba(0, 0, 0, 0.85); }
+    .btn-icon-overlay svg { width: 16px; height: 16px; }
+
+    /* ==========================================
+       PLAYER DE ÁUDIO
+       ========================================== */
+    .audio-player {
+      grid-column: 1 / -1; /* Ocupa a linha toda */
+      grid-row: 2;
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-2) var(--space-3);
+      background: #151515;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      flex-shrink: 0;
+      height: 48px;
+      transition: border-color var(--duration-fast) ease;
+    }
+
+    .audio-player.is-active {
+      border-color: rgba(194, 0, 0, 0.4);
+    }
+
+    .audio-player__time {
+      font-size: 0.7rem;
+      font-variant-numeric: tabular-nums;
+      color: var(--color-text-muted);
+      min-width: 34px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .audio-player__track {
+      flex: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      overflow: hidden;
+      position: relative;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .audio-player__fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(to right, var(--color-accent), var(--color-accent-hover));
+      border-radius: 3px;
+      transition: width 0.1s linear;
+      pointer-events: none;
+    }
+
+    /* ==========================================
+       BOTÕES BASE
+       ========================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: 0 var(--space-4);
+      height: 48px;
+      min-height: 48px;
+      flex-shrink: 0;
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      line-height: 1;
+      cursor: pointer;
+      transition: all var(--duration-fast) ease;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn:disabled,
+    .btn[aria-disabled="true"] {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .btn--primary {
+      background: var(--color-accent);
+      color: #fff;
+    }
+    .btn--primary:hover:not(:disabled):not([aria-disabled="true"]) { background: var(--color-accent-hover); }
+
+    .btn--secondary {
+      background: var(--color-surface-hover);
+      color: var(--color-text);
+      border-color: var(--color-border);
+    }
+    .btn--secondary:hover:not(:disabled):not([aria-disabled="true"]) { background: rgba(255, 255, 255, 0.14); }
+
+    .btn--record {
+      background: #151515;
+      border: 1px solid var(--color-accent);
+      color: #fff;
+    }
+    .btn--record:hover:not(:disabled) { background: #2a0a0a; }
+
+    .btn--translate {
+      background: #151515;
+      border: 1px solid var(--color-border-strong);
+      color: var(--color-text);
+    }
+    .btn--translate:hover:not([aria-disabled="true"]) {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--color-accent);
+    }
+
+    /* Escanear: desktop mostra empilhado; mobile mostra na barra */
+    .btn-scan-mobile { display: none; }
+    .btn-scan-desktop { display: inline-flex; }
+
+    .btn--record.processing { opacity: 0.85; cursor: wait; }
+    .btn--record.processing svg { animation: spin 1s linear infinite; }
+
+    /* ==========================================
+       CONTROLS BAR (horizontal)
+       ========================================== */
+    .controls-bar {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+      flex-shrink: 0;
+      align-items: stretch;
+      flex-wrap: wrap;
+    }
+
+    .controls-bar .btn {
+      height: 48px;
+      min-height: 48px;
+    }
+
+    .btn-play-pause {
+      min-width: 110px;
+      flex: 0 0 auto;
+    }
+
+    .btn-play-pause.is-playing {
+      background: #151515;
+      border: 1px solid var(--color-accent);
+      color: #fff;
+    }
+    .btn-play-pause.is-playing:hover { background: #2a0a0a; }
+
+    #tts-play.is-playing svg { animation: pulse 1.2s infinite; }
+
+    .voice-selector {
+      flex: 0 0 170px;
+      min-width: 130px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+    }
+
+    .voice-selector select {
+      width: 100%;
+      height: 100%;
+      padding: 0 var(--space-3);
+      padding-right: calc(var(--space-3) + 20px);
+      background: #151515;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      color: var(--color-text);
+      font-family: inherit;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      line-height: 1.5;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='0.6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right var(--space-2) center;
+      display: flex;
+      align-items: center;
+    }
+    .voice-selector select:focus-visible { outline: none; border-color: var(--color-accent); }
+    .voice-selector select option { background: #1a1a1a; color: var(--color-text); }
+
+    .speed-control {
+      flex: 1 1 140px;
+      min-width: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 48px;
+    }
+
+    .speed-control__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2px;
+    }
+
+    .speed-control__header label { font-size: 0.65rem; color: var(--color-text-dim); }
+    .speed-control__value { font-size: 0.65rem; font-weight: 600; color: var(--color-text); }
+
+    .speed-control input[type="range"] {
+      width: 100%; height: 4px;
+      appearance: none;
+      -webkit-appearance: none;
+      background: linear-gradient(to right, var(--color-accent) var(--value, 33%), var(--color-border) var(--value, 33%));
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .speed-control input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 0 0 2px var(--color-bg);
+    }
+
+    .speed-control input[type="range"]::-moz-range-thumb {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 0 0 2px var(--color-bg);
+    }
+
+    /* ==========================================
+       STATUS
+       ========================================== */
+    .status {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      padding-top: var(--space-4);
+      min-height: 44px;
+      flex-shrink: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      margin-top: var(--space-2);
+      color: var(--color-text-dim);
+    }
+
+    .status-content {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      max-width: 90%;
+      text-align: center;
+    }
+
+    .status-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px; height: 16px;
+      flex-shrink: 0;
+    }
+
+    .status-icon svg { width: 100%; height: 100%; }
+
+    #tts-status-text { font-size: var(--text-xs); line-height: 1.4; }
+
+    .status--playing .status-icon svg { animation: pulse 1.2s infinite; }
+    .status--processing .status-icon svg { animation: spin 1s linear infinite; }
+
+    /* ==========================================
+       FOOTER
+       ========================================== */
+    .app-footer {
+      flex-shrink: 0;
+      text-align: center;
+      padding: var(--space-2) 0 var(--space-1);
+      margin-top: var(--space-1);
+      font-size: 0.68rem;
+      line-height: 1.5;
+      color: var(--color-text-muted);
+      letter-spacing: 0.01em;
+    }
+    .app-footer a {
+      color: var(--color-text-muted);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      text-decoration-thickness: 1px;
+      transition: color var(--duration-fast) ease;
+    }
+    .app-footer a:hover { color: var(--color-text-dim); }
+    .app-footer .footer-sep {
+      display: inline-block;
+      margin: 0 6px;
+      opacity: 0.5;
+    }
+
+    /* ==========================================
+       MODAIS
+       ========================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.28s ease, visibility 0.28s ease;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .modal-overlay.show { opacity: 1; visibility: visible; }
+
+    .modal-content {
+      position: relative;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(194, 0, 0, 0.10), transparent 60%),
+        #151515;
+      border: 1px solid var(--color-border-strong);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6) var(--space-5) var(--space-4);
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      transform: scale(0.92) translateY(16px);
+      transition: transform 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow:
+        0 24px 48px rgba(0, 0, 0, 0.55),
+        0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+      margin: auto;
+      flex-shrink: 0;
+    }
+    .modal-overlay.show .modal-content { transform: scale(1) translateY(0); }
+
+    .modal-content--terms {
+      max-width: 460px;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: var(--space-4);
+    }
+
+    .modal-icon {
+      position: absolute;
+      top: var(--space-4); left: var(--space-4);
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--color-border);
+      color: var(--color-text);
+      flex-shrink: 0;
+    }
+    .modal-icon svg { width: 18px; height: 18px; }
+    .modal-icon.is-success {
+      color: var(--color-success);
+      border-color: rgba(74, 222, 128, 0.4);
+      background: rgba(74, 222, 128, 0.10);
+    }
+    .modal-icon.is-warning {
+      color: var(--color-warning);
+      border-color: rgba(251, 191, 36, 0.4);
+      background: rgba(251, 191, 36, 0.10);
+    }
+    .modal-icon.is-error {
+      color: var(--color-error);
+      border-color: rgba(248, 113, 113, 0.4);
+      background: rgba(248, 113, 113, 0.10);
+    }
+    .modal-icon.is-accent {
+      color: var(--color-accent);
+      border-color: rgba(194, 0, 0, 0.4);
+      background: rgba(194, 0, 0, 0.10);
+    }
+
+    .modal-counter-wrap {
+      margin: var(--space-4) auto var(--space-2);
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 2px;
+      flex-shrink: 0;
+      width: 100%;
+      overflow: hidden;
+      padding: 0 var(--space-2);
+      box-sizing: border-box;
+    }
+
+    .modal-counter {
+      font-size: 3.2rem;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: var(--color-text);
+      transition: color 0.3s ease;
+      font-variant-numeric: tabular-nums;
+      display: inline-block;
+      min-width: 2.2ch;
+      text-align: right;
+    }
+
+    .modal-counter-suffix {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--color-text-dim);
+      transition: color 0.3s ease;
+    }
+
+    .modal-counter-label {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-4);
+      flex-shrink: 0;
+    }
+
+    .modal-message {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      margin-bottom: var(--space-4);
+      color: var(--color-text);
+      flex-shrink: 0;
+    }
+
+    .modal-details {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      margin-bottom: var(--space-3);
+      text-align: left;
+      flex-shrink: 0;
+    }
+    .modal-detail-row { display: flex; flex-direction: column; gap: var(--space-2); }
+    .modal-detail-label {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      font-size: var(--text-xs);
+      font-weight: 500;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .modal-detail-label svg { width: 12px; height: 12px; }
+
+    .modal-heard-text {
+      width: 100%;
+      min-height: 72px;
+      max-height: 200px;
+      padding: var(--space-3);
+      background: #151515;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      color: var(--color-text);
+      font-family: inherit;
+      font-size: var(--text-sm);
+      font-weight: 400;
+      line-height: 1.5;
+      font-style: italic;
+      resize: vertical;
+      transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
+      word-break: break-word;
+    }
+    .modal-heard-text:focus-visible {
+      outline: none;
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px rgba(194, 0, 0, 0.15);
+    }
+
+    .modal-restore-btn {
+      display: none;
+      align-items: center;
+      gap: var(--space-1);
+      margin-top: var(--space-2);
+      padding: 0;
+      background: transparent;
+      border: none;
+      color: var(--color-text-muted);
+      font-family: inherit;
+      font-size: var(--text-xs);
+      cursor: pointer;
+      transition: color var(--duration-fast) ease;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .modal-restore-btn:hover { color: var(--color-text-dim); }
+    .modal-restore-btn.is-visible { display: inline-flex; }
+    .modal-restore-btn svg { width: 12px; height: 12px; }
+
+    .modal-truncate-warning {
+      display: none;
+      align-items: flex-start;
+      gap: var(--space-2);
+      text-align: left;
+      font-size: var(--text-xs);
+      line-height: 1.4;
+      color: var(--color-warning);
+      background: rgba(251, 191, 36, 0.08);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: var(--radius-md);
+      padding: var(--space-2) var(--space-3);
+      margin-bottom: var(--space-3);
+      flex-shrink: 0;
+    }
+    .modal-truncate-warning.is-visible { display: flex; }
+    .modal-truncate-warning svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; }
+    .modal-truncate-warning span { flex: 1; }
+
+    .modal-note {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      text-align: left;
+      font-size: var(--text-xs);
+      line-height: 1.35;
+      color: var(--color-text-muted);
+      padding: 0 var(--space-1);
+      margin-bottom: var(--space-4);
+      flex-shrink: 0;
+    }
+    .modal-note svg { width: 13px; height: 13px; flex-shrink: 0; color: var(--color-text-muted); }
+    .modal-note span { flex: 1; }
+
+    .btn-modal-close {
+      width: 100%;
+      height: 52px;
+      min-height: 52px;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: var(--text-base);
+      gap: var(--space-2);
+      flex: 0 0 auto;
+    }
+    .btn-modal-close svg { width: 20px; height: 20px; }
+
+    .terms-title {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      margin-top: var(--space-4);
+      margin-bottom: var(--space-4);
+      flex-shrink: 0;
+    }
+
+    .terms-full-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      width: 100%;
+      height: 52px;
+      min-height: 52px;
+      padding: 0 var(--space-4);
+      background: var(--color-surface-hover);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: var(--text-base);
+      font-weight: 500;
+      color: var(--color-text);
+      text-decoration: none;
+      margin-bottom: var(--space-4);
+      flex-shrink: 0;
+      transition: all var(--duration-fast) ease;
+      -webkit-tap-highlight-color: transparent;
+      white-space: nowrap;
+    }
+    .terms-full-link:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: var(--color-accent);
+    }
+    .terms-full-link svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    .terms-checkbox-label {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-2);
+      text-align: left;
+      font-size: var(--text-sm);
+      color: var(--color-text-dim);
+      margin-bottom: var(--space-4);
+      cursor: pointer;
+      line-height: 1.5;
+      flex-shrink: 0;
+    }
+
+    .terms-checkbox-label input[type="checkbox"] {
+      margin-top: 3px;
+      width: 18px;
+      height: 18px;
+      accent-color: var(--color-accent);
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    /* ==========================================
+       OVERLAY DE RECORTE
+       ========================================== */
+    .crop-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1200;
+      background: #000;
+      display: none;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: space-between;
+    }
+    .crop-overlay.show { display: flex; }
+
+    .crop-overlay__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-2) var(--space-3);
+      background: rgba(10, 10, 10, 0.95);
+      color: var(--color-text);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .crop-overlay__header .btn-icon-overlay {
+      width: 32px;
+      height: 32px;
+    }
+
+    .crop-overlay__stage {
+      position: relative;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #000;
+      touch-action: none;
+      padding: var(--space-3);
+    }
+
+    .crop-overlay__stage canvas {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    .crop-overlay__controls {
+      display: flex;
+      gap: var(--space-2);
+      padding: var(--space-3);
+      background: rgba(10, 10, 10, 0.95);
+      border-top: 1px solid var(--color-border);
+      flex-shrink: 0;
+    }
+    .crop-overlay__controls .btn {
+      flex: 1;
+      height: 44px;
+      min-height: 44px;
+      font-size: var(--text-sm);
+      padding: 0 var(--space-3);
+    }
+    .crop-overlay__controls .btn svg { width: 16px; height: 16px; }
+
+    /* ==========================================
+       CÂMERA
+       ========================================== */
+    .camera-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1100;
+      background: #000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .camera-overlay.show { display: flex; }
+
+    .camera-overlay__video-wrap {
+      position: relative;
+      width: 100%;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .camera-overlay__video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+    }
+
+    .camera-overlay__controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-6);
+      padding: var(--space-5) var(--space-4);
+      background: rgba(10, 10, 10, 0.9);
+      width: 100%;
+      flex-shrink: 0;
+    }
+
+    .camera-btn {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all var(--duration-fast) ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .camera-btn:hover { background: rgba(255, 255, 255, 0.2); }
+    .camera-btn svg { width: 22px; height: 22px; }
+
+    .camera-btn--capture {
+      width: 72px; height: 72px;
+      background: #fff;
+      border: 4px solid rgba(255, 255, 255, 0.5);
+    }
+    .camera-btn--capture:hover { background: #e0e0e0; }
+    .camera-btn--capture svg { color: #000; width: 28px; height: 28px; }
+
+    .camera-btn--close {
+      background: transparent;
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* ==========================================
+       ANIMAÇÕES
+       ========================================== */
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes waveBar {
+      0%, 100% { height: calc(var(--h) * 0.4); opacity: 0.6; }
+      50%      { height: var(--h);          opacity: 1;   }
+    }
+
+        /* ==========================================
+       BOTÃO DE VOLTAR (HOME)
+       ========================================== */
+       .btn-back {
+      position: absolute;
+      top: var(--space-4);
+      left: var(--space-4);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--color-surface-hover);
+      border: 1px solid var(--color-border);
+      color: var(--color-text);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all var(--duration-fast) ease;
+      z-index: 10;
+      -webkit-tap-highlight-color: transparent;
+      text-decoration: none;
+    }
+
+    .btn-back:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: var(--color-border-strong);
+      transform: translateX(-2px); /* Efeitinho de mexer para a esquerda */
+    }
+
+    .btn-back svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* ==========================================
+       DESKTOP (>768px)
+       ========================================== */
+    @media (min-width: 769px) {
+      :root {
+        --text-xs: 0.8125rem;
+        --text-sm: 0.9375rem;
+        --text-base: 1.125rem;
+        --text-lg: 1.375rem;
+      }
+      .app-wrapper { max-width: 820px; }
+      .header { margin-bottom: var(--space-6); }
+      .header__logo svg { width: 32px; height: 32px; }
+      .btn { height: 48px; min-height: 48px; font-size: var(--text-sm); }
+      .btn svg { width: 20px; height: 20px; }
+      .voice-selector { height: 48px; flex: 0 0 200px; }
+      .speed-control { height: 48px; }
+      .speed-control__header label, .speed-control__value { font-size: 0.72rem; }
+
+      .speed-control input[type="range"] { height: 6px; }
+      .speed-control input[type="range"]::-webkit-slider-thumb { width: 18px; height: 18px; }
+      .speed-control input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; }
+
+      .status { padding-top: 24px; min-height: 56px; }
+      .status-icon { width: 18px; height: 18px; }
+      #tts-status-text { font-size: var(--text-sm); }
+
+      .bg-waves { height: 180px; opacity: 0.10; }
+      .app-footer { font-size: 0.72rem; }
+
+      .preview-wrap { max-height: 240px; min-height: 180px; }
+      .capture-area .capture-actions .btn { height: 48px; min-height: 48px; }
+      .capture-area { padding-top: var(--space-6); }
+
+      .main-title { margin-bottom: var(--space-4); }
+
+      .btn-scan-mobile  { display: none !important; }
+      .btn-scan-desktop { display: inline-flex !important; }
+
+      /* --- AJUSTES FINAIS: Quebra-cabeça perfeito --- */
+      
+      /* Modal mais largo no Desktop */
+      .modal-content { max-width: 540px; }
+      .modal-content--terms { max-width: 540px; }
+    }
+
+    /* ==========================================
+       MOBILE (≤768px)
+       ========================================== */
+    @media (max-width: 768px) {
+      body {
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+        padding: var(--space-4);
+        align-items: flex-start;
+      }
+      .app-wrapper { max-height: none; margin-top: var(--space-2); }
+
+      /* Capture area volta a ser coluna */
+      .capture-area {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+        padding-top: 0;
+      }
+      .capture-area .capture-actions {
+        display: contents;
+      }
+      .capture-buttons {
+        display: flex;
+        gap: var(--space-3);
+        flex-wrap: nowrap;
+        width: 100%;
+      }
+      .capture-buttons .btn {
+        flex: 1 1 0;
+        min-width: 0;
+        height: 48px;
+        min-height: 48px;
+        font-size: var(--text-sm);
+        gap: var(--space-2);
+        padding: 0 var(--space-2);
+      }
+      .capture-buttons .btn svg { width: 18px; height: 18px; }
+
+      .preview-wrap {
+        min-height: 120px;
+        max-height: none;
+        height: auto;
+      }
+      .preview-wrap img { max-height: 200px; height: auto; object-fit: contain; }
+      .preview-placeholder { padding: var(--space-4); }
+      .preview-placeholder svg { width: 28px; height: 28px; }
+      .preview-placeholder span { font-size: var(--text-xs); }
+
+      /* Player Mobile */
+      .audio-player { 
+        display: flex;
+        width: 100%;
+        height: 48px;
+        min-height: 48px;
+        margin-top: 0;
+        padding: var(--space-2);
+      }
+      .audio-player__time { font-size: 0.65rem; min-width: 28px; }
+
+      /* Esconder Escanear do capture-area e mostrar na barra */
+      .btn-scan-desktop { display: none !important; }
+      .btn-scan-mobile  { display: inline-flex !important; }
+
+      /* Controls bar: alinhamento perfeito */
+      .controls-bar {
+        flex-wrap: wrap;
+        gap: var(--space-2);
+        align-items: stretch;
+      }
+
+      .btn-scan-mobile,
+      .btn-play-pause,
+      .controls-bar .btn--translate {
+        flex: 1 1 calc(33.333% - var(--space-2));
+        min-width: 0;
+        height: 48px;
+        min-height: 48px;
+        font-size: var(--text-xs);
+        padding: 0 var(--space-2);
+        gap: var(--space-1);
+        white-space: nowrap;
+        overflow: hidden;
+      }
+
+      .btn-scan-mobile span,
+      .btn-play-pause span,
+      .controls-bar .btn--translate span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .btn-scan-mobile svg,
+      .btn-play-pause svg,
+      .controls-bar .btn--translate svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .voice-selector {
+        flex: 1 1 100%;
+        height: 48px;
+        min-height: 48px;
+      }
+      .voice-selector select {
+        height: 48px;
+        font-size: var(--text-sm);
+        padding: 0 var(--space-3);
+        padding-right: calc(var(--space-3) + 18px);
+        background-position: right var(--space-3) center;
+        background-size: 12px;
+      }
+
+      .speed-control {
+        flex: 1 1 100%;
+        height: auto;
+        min-width: 100%;
+        padding: var(--space-2) 0;
+      }
+      .speed-control__header label, .speed-control__value { font-size: var(--text-xs); }
+
+      /* MODAL MOBILE */
+      .modal-overlay {
+        padding: var(--space-2);
+        align-items: flex-start;
+        padding-top: max(var(--space-2), env(safe-area-inset-top));
+        padding-bottom: max(var(--space-2), env(safe-area-inset-bottom));
+      }
+      .modal-content {
+        max-height: calc(100dvh - 16px);
+        max-height: calc(100vh - 16px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: var(--space-4) var(--space-3) var(--space-3);
+        border-radius: var(--radius-lg);
+      }
+      .modal-content--terms {
+        max-height: calc(100dvh - 16px);
+        max-height: calc(100vh - 16px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: var(--space-4) var(--space-3) var(--space-3);
+      }
+      .modal-icon {
+        width: 28px; height: 28px;
+        top: var(--space-2); left: var(--space-2);
+      }
+      .modal-icon svg { width: 14px; height: 14px; }
+      .modal-counter-wrap { margin: var(--space-2) auto var(--space-1); }
+      .modal-counter { font-size: 2rem; min-width: 2.2ch; }
+      .modal-counter-suffix { font-size: 1rem; }
+      .modal-counter-label { font-size: 0.65rem; margin-bottom: var(--space-2); }
+      .modal-message { font-size: var(--text-xs); margin-bottom: var(--space-2); }
+      .modal-details { padding: var(--space-2) var(--space-3); margin-bottom: var(--space-2); }
+      .modal-detail-label { font-size: 0.65rem; }
+      .modal-heard-text {
+        min-height: 64px;
+        max-height: 120px;
+        font-size: var(--text-xs);
+        padding: var(--space-2);
+        line-height: 1.4;
+      }
+      .modal-truncate-warning { font-size: 0.65rem; padding: var(--space-1) var(--space-2); margin-bottom: var(--space-2); }
+      .modal-note { font-size: 0.65rem; margin-bottom: var(--space-2); line-height: 1.3; }
+      .btn-modal-close, .terms-full-link { height: 44px; min-height: 44px; font-size: var(--text-sm); }
+      .terms-title { font-size: var(--text-base); margin-top: var(--space-3); margin-bottom: var(--space-2); }
+      .terms-checkbox-label { font-size: var(--text-xs); margin-bottom: var(--space-3); }
+      .header p { display: block; font-size: var(--text-xs); padding: 0 var(--space-3); }
+      .header { margin-bottom: var(--space-4); }
+    }
+    @media (max-width: 768px) {
+        .btn-back {
+        position: fixed; /* Fixa na tela, ignora o container */
+        top: max(var(--space-3), env(safe-area-inset-top));
+        left: max(var(--space-3), env(safe-area-inset-left));
+        width: 40px;
+        height: 40px;
+        background: rgba(21, 21, 21, 0.9); /* Fundo mais escuro para contraste */
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 100; /* Garante que fique acima de tudo */
+      }
+      
+      .btn-back svg { width: 18px; height: 18px; }
+      
+      /* Dá um espaço no topo do conteúdo para o botão não cobrir o cabeçalho */
+      .app-wrapper {
+        padding-top: 48px; 
+      }
+      
+      /* ... */
+    }
+
+    @media (max-width: 380px) {
+      .modal-counter { font-size: 1.6rem; }
+      .modal-counter-suffix { font-size: 0.85rem; }
+      .modal-heard-text { min-height: 56px; max-height: 96px; }
+      .modal-content { padding: var(--space-3) var(--space-2); }
+      .modal-icon { width: 24px; height: 24px; }
+      .modal-icon svg { width: 12px; height: 12px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+      .bg-waves { display: none; }
+      .status--playing .status-icon svg,
+      .status--processing .status-icon svg,
+      #tts-play.is-playing svg,
+      .btn--record.processing svg { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-waves" id="bg-waves" aria-hidden="true"></div>
+
+  <main class="app-wrapper">
+    <!-- BOTÃO DE VOLTAR -->
+    <a href="../index.html" class="btn-back" aria-label="Voltar para a Home" title="Voltar">
+      <i data-lucide="arrow-left" aria-hidden="true"></i>
+    </a>
+    
+    <header class="header">
+      <div class="header__logo">
+        <i data-lucide="scan-line" aria-hidden="true"></i>
+        <h1>Scanner - Leitor Interativo </h1>
+      </div>
+      <p>Tire uma foto do texto e ouça a pronúncia na hora.</p>
+    </header>
+
+    <h2 id="scanner-title" class="main-title">Foto &rarr; Pronúncia &rarr; Tradução</h2>
+
+    <div class="capture-area">
+      <div class="capture-actions">
+        <div class="capture-buttons">
+          <button class="btn btn--primary" id="btn-open-camera" type="button">
+            <i data-lucide="camera" aria-hidden="true"></i>
+            <span>Tirar foto</span>
+          </button>
+
+          <label class="btn btn--secondary" for="gallery-input">
+            <i data-lucide="image" aria-hidden="true"></i>
+            <span>Galeria</span>
+          </label>
+          <input type="file" id="gallery-input" class="file-input-hidden" accept="image/*">
+
+          <!-- Escanear: visível SOMENTE no desktop -->
+          <button class="btn btn--record btn-scan-desktop" id="btn-scan" type="button" disabled>
+            <i data-lucide="scan-text" aria-hidden="true"></i>
+            <span>Escanear</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="preview-wrap" id="preview-wrap">
+        <div class="preview-placeholder" id="preview-placeholder">
+          <i data-lucide="image-off" aria-hidden="true"></i>
+          <span>Nenhuma imagem selecionada ainda.</span>
+        </div>
+        <img id="preview" alt="Pré-visualização da imagem" style="display:none;">
+        <div class="preview-actions" id="preview-actions" style="display:none;">
+          <button class="btn-icon-overlay" id="btn-crop" type="button" title="Recortar" aria-label="Recortar imagem">
+            <i data-lucide="crop" aria-hidden="true"></i>
+          </button>
+          <button class="btn-icon-overlay" id="btn-rotate" type="button" title="Girar 90°" aria-label="Girar imagem 90 graus">
+            <i data-lucide="rotate-cw" aria-hidden="true"></i>
+          </button>
+          <button class="btn-icon-overlay" id="btn-clear" type="button" title="Remover imagem" aria-label="Remover imagem">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- PLAYER DE ÁUDIO -->
+      <div class="audio-player" id="audio-player">
+        <span class="audio-player__time" id="player-current">0:00</span>
+        <div class="audio-player__track" id="player-track" role="progressbar" aria-label="Progresso do áudio" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="audio-player__fill" id="player-fill"></div>
+        </div>
+        <span class="audio-player__time" id="player-duration">0:00</span>
+      </div>
+    </div>
+
+    <div class="controls-bar">
+      <!-- Escanear: visível SOMENTE no mobile -->
+      <button class="btn btn--record btn-scan-mobile" id="btn-scan-mobile" type="button" disabled>
+        <i data-lucide="scan-text" aria-hidden="true"></i>
+        <span>Escanear</span>
+      </button>
+
+      <button class="btn btn--primary btn-play-pause" id="tts-play" type="button" disabled>
+        <i data-lucide="play" aria-hidden="true"></i>
+        <span id="tts-play-label">Ouvir</span>
+      </button>
+
+      <a class="btn btn--translate" id="btn-translate" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true">
+        <i data-lucide="languages" aria-hidden="true"></i>
+        <span>Traduzir</span>
+      </a>
+
+      <div class="voice-selector">
+        <select id="tts-voice" aria-label="Sotaque">
+          <option value="">Sotaque</option>
+        </select>
+      </div>
+
+      <div class="speed-control">
+        <div class="speed-control__header">
+          <label for="speed-slider">Velocidade</label>
+          <span class="speed-control__value" id="speed-display">1.0x</span>
+        </div>
+        <input type="range" id="speed-slider" min="0.5" max="2.0" step="0.1" value="1.0" style="--value: 33.33%;">
+      </div>
+    </div>
+
+    <div class="status" id="tts-status" role="status" aria-live="polite">
+      <div class="status-content">
+        <div class="status-icon" id="status-icon-container">
+          <i data-lucide="check-circle-2" aria-hidden="true"></i>
+        </div>
+        <span id="tts-status-text">Pronto para escanear</span>
+      </div>
+    </div>
+
+    <footer class="app-footer">
+      Desenvolvido por @dicarvalho.prof
+      <span class="footer-sep">•</span>
+      <a href="../termos/termos.html" target="_blank" rel="noopener noreferrer">Leia os termos de uso</a>
+    </footer>
+  </main>
+
+  <!-- CAMERA OVERLAY -->
+  <div class="camera-overlay" id="camera-overlay">
+    <div class="camera-overlay__video-wrap">
+      <video class="camera-overlay__video" id="camera-video" autoplay playsinline muted></video>
+    </div>
+    <div class="camera-overlay__controls">
+      <button class="camera-btn camera-btn--close" id="btn-camera-close" type="button" title="Fechar câmera" aria-label="Fechar câmera">
+        <i data-lucide="x" aria-hidden="true"></i>
+      </button>
+      <button class="camera-btn camera-btn--capture" id="btn-camera-capture" type="button" title="Capturar foto" aria-label="Capturar foto">
+        <i data-lucide="camera" aria-hidden="true"></i>
+      </button>
+      <button class="camera-btn" id="btn-camera-switch" type="button" title="Alternar câmera" aria-label="Alternar câmera frontal/traseira">
+        <i data-lucide="refresh-cw" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- OVERLAY DE RECORTE -->
+  <div class="crop-overlay" id="crop-overlay" aria-hidden="true">
+    <div class="crop-overlay__header">
+      <span>Recortar imagem</span>
+      <button class="btn-icon-overlay" id="btn-crop-close" type="button" aria-label="Cancelar recorte">
+        <i data-lucide="x" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="crop-overlay__stage" id="crop-stage">
+      <canvas id="crop-canvas"></canvas>
+    </div>
+
+    <div class="crop-overlay__controls">
+      <button class="btn btn--secondary" id="btn-crop-cancel" type="button">
+        <i data-lucide="x" aria-hidden="true"></i>
+        <span>Cancelar</span>
+      </button>
+      <button class="btn btn--primary" id="btn-crop-apply" type="button">
+        <i data-lucide="check" aria-hidden="true"></i>
+        <span>Aplicar recorte</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL DE RESULTADO -->
+  <div class="modal-overlay" id="result-modal">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-message">
+      <div class="modal-icon" id="modal-icon">
+        <i data-lucide="scan-text" aria-hidden="true"></i>
+      </div>
+
+      <div class="modal-counter-wrap">
+        <span class="modal-counter" id="modal-counter">0</span>
+        <span class="modal-counter-suffix">%</span>
+      </div>
+      <div class="modal-counter-label">Confiança do OCR</div>
+
+      <div class="modal-message" id="modal-message"></div>
+
+      <div class="modal-details">
+        <div class="modal-detail-row">
+          <span class="modal-detail-label">
+            <i data-lucide="pencil-line" aria-hidden="true"></i>
+            Texto reconhecido (editável)
+          </span>
+          <textarea
+            id="modal-heard"
+            class="modal-heard-text"
+            lang="en"
+            spellcheck="false"
+            placeholder="Nenhum texto reconhecido..."
+          ></textarea>
+          <button class="modal-restore-btn" id="btn-restore-ocr" type="button">
+            <i data-lucide="rotate-ccw" aria-hidden="true"></i>
+            <span>Restaurar OCR original</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-truncate-warning" id="modal-truncate-warning" role="alert">
+        <i data-lucide="alert-triangle" aria-hidden="true"></i>
+        <span id="modal-truncate-warning-text"></span>
+      </div>
+
+      <p class="modal-note">
+        <i data-lucide="info" aria-hidden="true"></i>
+        <span>Edite o texto se o OCR errou. O áudio e a tradução usam o texto editado.</span>
+      </p>
+
+      <button class="btn btn--primary btn-modal-close" id="btn-modal-close" type="button">
+        <i data-lucide="check" aria-hidden="true"></i>
+        <span>OK</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL DE TERMOS DE USO -->
+  <div class="modal-overlay" id="terms-modal">
+    <div class="modal-content modal-content--terms" role="dialog" aria-modal="true" aria-labelledby="terms-title">
+      <div class="modal-icon is-accent" id="terms-icon">
+        <i data-lucide="file-text" aria-hidden="true"></i>
+      </div>
+
+      <h3 id="terms-title" class="terms-title">Termos de Uso</h3>
+
+      <a class="terms-full-link" href="../termos/termos.html" target="_blank" rel="noopener noreferrer">
+        <i data-lucide="external-link" aria-hidden="true"></i>
+        <span>Ler os termos completos</span>
+      </a>
+
+      <label class="terms-checkbox-label">
+        <input type="checkbox" id="terms-checkbox">
+        <span>Li e aceito os Termos de Uso. Declaro que tenho o direito de usar o conteúdo que vou escanear.</span>
+      </label>
+
+      <button class="btn btn--primary btn-modal-close" id="btn-accept-terms" type="button" disabled>
+        <i data-lucide="check" aria-hidden="true"></i>
+        <span>Aceitar e continuar</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    'use strict';
+
+    lucide.createIcons();
+
+    const TRANSLATE_MAX_CHARS = 4500;
+    const EDIT_DEBOUNCE_MS = 250;
+    const TERMS_VERSION = '1.0';
+    const TERMS_STORAGE_KEY = 'leitor_interativo_terms_acceptance';
+
+    (function buildWaves() {
+      const container = document.getElementById('bg-waves');
+      if (!container) return;
+      const count = Math.max(24, Math.floor(window.innerWidth / 22));
+      const frag = document.createDocumentFragment();
+      for (let i = 0; i < count; i++) {
+        const bar = document.createElement('span');
+        bar.style.setProperty('--h', (25 + Math.random() * 75) + '%');
+        bar.style.animationDelay = (Math.random() * 2.4).toFixed(2) + 's';
+        frag.appendChild(bar);
+      }
+      container.appendChild(frag);
+    })();
+
+    const els = {
+      galleryInput: document.getElementById('gallery-input'),
+      btnOpenCamera: document.getElementById('btn-open-camera'),
+      previewWrap: document.getElementById('preview-wrap'),
+      preview: document.getElementById('preview'),
+      placeholder: document.getElementById('preview-placeholder'),
+      previewActions: document.getElementById('preview-actions'),
+      btnCrop: document.getElementById('btn-crop'),
+      btnRotate: document.getElementById('btn-rotate'),
+      btnClear: document.getElementById('btn-clear'),
+      btnScan: document.getElementById('btn-scan'),
+      btnScanMobile: document.getElementById('btn-scan-mobile'),
+      play: document.getElementById('tts-play'),
+      playLabel: document.getElementById('tts-play-label'),
+      btnTranslate: document.getElementById('btn-translate'),
+      voice: document.getElementById('tts-voice'),
+      slider: document.getElementById('speed-slider'),
+      speed: document.getElementById('speed-display'),
+      status: document.getElementById('tts-status'),
+      statusText: document.getElementById('tts-status-text'),
+      statusIconContainer: document.getElementById('status-icon-container'),
+
+      // Player
+      player: document.getElementById('audio-player'),
+      playerFill: document.getElementById('player-fill'),
+      playerTrack: document.getElementById('player-track'),
+      playerCurrent: document.getElementById('player-current'),
+      playerDuration: document.getElementById('player-duration'),
+
+      cameraOverlay: document.getElementById('camera-overlay'),
+      cameraVideo: document.getElementById('camera-video'),
+      btnCameraClose: document.getElementById('btn-camera-close'),
+      btnCameraCapture: document.getElementById('btn-camera-capture'),
+      btnCameraSwitch: document.getElementById('btn-camera-switch'),
+
+      cropOverlay: document.getElementById('crop-overlay'),
+      cropStage: document.getElementById('crop-stage'),
+      cropCanvas: document.getElementById('crop-canvas'),
+      btnCropClose: document.getElementById('btn-crop-close'),
+      btnCropCancel: document.getElementById('btn-crop-cancel'),
+      btnCropApply: document.getElementById('btn-crop-apply'),
+
+      modal: document.getElementById('result-modal'),
+      modalCounter: document.getElementById('modal-counter'),
+      modalMessage: document.getElementById('modal-message'),
+      modalHeard: document.getElementById('modal-heard'),
+      btnRestoreOCR: document.getElementById('btn-restore-ocr'),
+      modalTruncateWarning: document.getElementById('modal-truncate-warning'),
+      modalTruncateWarningText: document.getElementById('modal-truncate-warning-text'),
+      btnModalClose: document.getElementById('btn-modal-close'),
+
+      termsModal: document.getElementById('terms-modal'),
+      termsCheckbox: document.getElementById('terms-checkbox'),
+      btnAcceptTerms: document.getElementById('btn-accept-terms'),
+    };
+
+    const state = {
+      speaking: false,
+      processing: false,
+      rotation: 0,
+      originalImage: null,
+      extractedText: '',
+      ocrText: '',
+      resetTimer: null,
+      editDebounceTimer: null,
+      cameraStream: null,
+      facingMode: 'environment',
+      counterAnimation: null,
+      cropImg: null,
+      cropSelection: null,
+      cropDrag: null,
+      cropScale: 1,
+      // Player
+      playerInterval: null,
+      estimatedDuration: 0,
+      currentProgress: 0,
+    };
+
+    const synth = window.speechSynthesis;
+    const supportedTTS = 'speechSynthesis' in window;
+    const supportedOCR = typeof Tesseract !== 'undefined';
+    const supportedCamera = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+
+    const STATUS = {
+      ready:      { icon: 'check-circle-2', text: 'Pronto para escanear' },
+      playing:    { icon: 'volume-2',       text: 'Reproduzindo...' },
+      done:       { icon: 'check-circle-2', text: 'Leitura concluída' },
+      stopped:    { icon: 'square',         text: 'Parado' },
+      warning:    { icon: 'alert-triangle', text: 'Aviso' },
+      error:      { icon: 'alert-circle',   text: 'Erro' },
+      processing: { icon: 'loader-circle',  text: 'Escaneando imagem...' },
+      scanned:    { icon: 'scan-text',      text: 'Texto extraído' },
+      edited:     { icon: 'pencil-line',    text: 'Texto editado' },
+    };
+
+    function setStatus(key, customText = null) {
+      const conf = STATUS[key] || STATUS.ready;
+      els.statusText.textContent = customText || conf.text;
+      els.statusIconContainer.innerHTML = `<i data-lucide="${conf.icon}"></i>`;
+      lucide.createIcons({ nodes: [els.statusIconContainer] });
+
+      els.status.classList.toggle('status--playing', key === 'playing');
+      els.status.classList.toggle('status--processing', key === 'processing');
+    }
+
+    function scheduleReset(delay = 3000) {
+      clearTimeout(state.resetTimer);
+      state.resetTimer = setTimeout(() => {
+        if (!state.speaking && !state.processing) setStatus('ready');
+      }, delay);
+    }
+
+    // ==========================================
+    // SINCRONIZAÇÃO DOS DOIS BOTÕES DE ESCANEAR
+    // ==========================================
+    function setScanEnabled(enabled) {
+      if (els.btnScan) els.btnScan.disabled = !enabled;
+      if (els.btnScanMobile) els.btnScanMobile.disabled = !enabled;
+    }
+
+    function setScanProcessing(on) {
+      [els.btnScan, els.btnScanMobile].forEach(b => {
+        if (!b) return;
+        b.classList.toggle('processing', on);
+      });
+    }
+
+    // ==========================================
+    // BOTÃO UNIFICADO OUVIR / PARAR
+    // ==========================================
+    function updatePlayButton() {
+      if (state.speaking) {
+        els.play.classList.add('is-playing');
+        els.play.innerHTML = '<i data-lucide="square" aria-hidden="true"></i><span id="tts-play-label">Parar</span>';
+      } else {
+        els.play.classList.remove('is-playing');
+        els.play.innerHTML = '<i data-lucide="play" aria-hidden="true"></i><span id="tts-play-label">Ouvir</span>';
+      }
+      els.playLabel = document.getElementById('tts-play-label');
+      lucide.createIcons({ nodes: [els.play] });
+    }
+
+    // ==========================================
+    // CONTROLE DO PLAYER
+    // ==========================================
+    function formatTime(sec) {
+      sec = Math.max(0, Math.round(sec));
+      const m = Math.floor(sec / 60);
+      const s = sec % 60;
+      return `${m}:${String(s).padStart(2, '0')}`;
+    }
+
+    function estimateDuration(text, rate) {
+      const words = (text || '').trim().split(/\s+/).filter(Boolean).length;
+      if (!words) return 0;
+      const baseSeconds = (words / 150) * 60;
+      return baseSeconds / Math.max(0.1, rate);
+    }
+
+    function updatePlayerProgress() {
+      if (!state.estimatedDuration) return;
+      const elapsed = state.currentProgress;
+      const ratio = Math.min(1, elapsed / state.estimatedDuration);
+      els.playerFill.style.width = `${ratio * 100}%`;
+      els.playerCurrent.textContent = formatTime(elapsed);
+      els.playerTrack.setAttribute('aria-valuenow', Math.round(ratio * 100));
+    }
+
+    function resetPlayer() {
+      clearInterval(state.playerInterval);
+      state.playerInterval = null;
+      state.currentProgress = 0;
+      state.estimatedDuration = 0;
+      els.playerFill.style.width = '0%';
+      els.playerCurrent.textContent = '0:00';
+      els.playerDuration.textContent = '0:00';
+      els.player.classList.remove('is-active');
+    }
+
+    function startPlayerTracking(duration) {
+      clearInterval(state.playerInterval);
+      state.estimatedDuration = duration;
+      state.currentProgress = 0;
+      els.playerDuration.textContent = formatTime(duration);
+      els.player.classList.add('is-active');
+
+      const tick = 0.1;
+      state.playerInterval = setInterval(() => {
+        if (!state.speaking) return;
+        state.currentProgress = Math.min(duration, state.currentProgress + tick);
+        updatePlayerProgress();
+        if (state.currentProgress >= duration) {
+          clearInterval(state.playerInterval);
+          state.playerInterval = null;
+        }
+      }, 100);
+    }
+
+    // ==========================================
+    // TERMOS DE USO E ACEITE
+    // ==========================================
+    function getStoredAcceptance() {
+      try {
+        const raw = localStorage.getItem(TERMS_STORAGE_KEY);
+        if (!raw) return null;
+        const data = JSON.parse(raw);
+        if (data.version !== TERMS_VERSION) return null;
+        return data;
+      } catch {
+        return null;
+      }
+    }
+
+    function saveAcceptance() {
+      const data = {
+        version: TERMS_VERSION,
+        acceptedAt: new Date().toISOString(),
+        userAgent: navigator.userAgent.substring(0, 200),
+      };
+      try {
+        localStorage.setItem(TERMS_STORAGE_KEY, JSON.stringify(data));
+      } catch (e) {
+        console.warn('Não foi possível salvar o aceite:', e);
+      }
+    }
+
+    function isTermsAccepted() {
+      return !!getStoredAcceptance();
+    }
+
+    function showTermsModal() {
+      els.termsCheckbox.checked = false;
+      els.btnAcceptTerms.disabled = true;
+      els.termsModal.classList.add('show');
+    }
+
+    function hideTermsModal() {
+      els.termsModal.classList.remove('show');
+    }
+
+    function acceptTerms() {
+      if (!els.termsCheckbox.checked) return;
+      saveAcceptance();
+      hideTermsModal();
+      setStatus('ready', 'Termos aceitos. Pronto para escanear.');
+      scheduleReset(2500);
+    }
+
+    if (!isTermsAccepted()) {
+      setTimeout(showTermsModal, 300);
+    }
+
+    els.termsCheckbox.addEventListener('change', () => {
+      els.btnAcceptTerms.disabled = !els.termsCheckbox.checked;
+    });
+
+    els.btnAcceptTerms.addEventListener('click', acceptTerms);
+
+    els.termsModal.addEventListener('click', (e) => {
+      if (e.target === els.termsModal && isTermsAccepted()) {
+        hideTermsModal();
+      }
+    });
+
+    // ==========================================
+    // CONTADOR ANIMADO
+    // ==========================================
+    function animateCounter(target, duration = 900) {
+      if (state.counterAnimation) cancelAnimationFrame(state.counterAnimation);
+      const start = performance.now();
+      const from = 0;
+      const to = Math.round(target);
+
+      function step(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(from + (to - from) * eased);
+        els.modalCounter.textContent = current;
+        if (progress < 1) {
+          state.counterAnimation = requestAnimationFrame(step);
+        } else {
+          els.modalCounter.textContent = to;
+          state.counterAnimation = null;
+        }
+      }
+      state.counterAnimation = requestAnimationFrame(step);
+    }
+
+    // ==========================================
+    // TRADUÇÃO
+    // ==========================================
+    function buildTranslateUrl(text) {
+      const content = (text || '').trim();
+      if (!content) return null;
+      const limited = content.slice(0, TRANSLATE_MAX_CHARS);
+      return `https://translate.google.com/?sl=en&tl=pt&text=${encodeURIComponent(limited)}&op=translate`;
+    }
+
+    function updateTranslateLink(text) {
+      const url = buildTranslateUrl(text);
+      if (!url) {
+        els.btnTranslate.setAttribute('href', '#');
+        els.btnTranslate.setAttribute('aria-disabled', 'true');
+        return;
+      }
+      els.btnTranslate.setAttribute('href', url);
+      els.btnTranslate.removeAttribute('aria-disabled');
+    }
+
+    function updateTruncateWarning(text) {
+      const len = (text || '').length;
+      if (len > TRANSLATE_MAX_CHARS) {
+        const extra = len - TRANSLATE_MAX_CHARS;
+        els.modalTruncateWarningText.textContent =
+          `Este texto tem ${len} caracteres. A tradução usará apenas os primeiros ${TRANSLATE_MAX_CHARS} (${extra} a mais não serão traduzidos). O áudio lê o texto completo.`;
+        els.modalTruncateWarning.classList.add('is-visible');
+      } else {
+        els.modalTruncateWarning.classList.remove('is-visible');
+      }
+    }
+
+    function autoResizeTextarea(textarea) {
+      textarea.style.height = 'auto';
+      const maxHeight = 200;
+      const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+      textarea.style.height = newHeight + 'px';
+    }
+
+    function handleEdit() {
+      const current = els.modalHeard.value;
+      state.extractedText = current;
+
+      const isModified = current.trim() !== state.ocrText.trim();
+      els.btnRestoreOCR.classList.toggle('is-visible', isModified && state.ocrText.length > 0);
+
+      clearTimeout(state.editDebounceTimer);
+      state.editDebounceTimer = setTimeout(() => {
+        updateTranslateLink(current);
+        updateTruncateWarning(current);
+      }, EDIT_DEBOUNCE_MS);
+
+      if (current.trim()) {
+        setStatus('edited', 'Texto editado. Pronto para ouvir ou traduzir.');
+        scheduleReset(2500);
+      }
+    }
+
+    function restoreOCR() {
+      if (!state.ocrText) return;
+      els.modalHeard.value = state.ocrText;
+      state.extractedText = state.ocrText;
+      autoResizeTextarea(els.modalHeard);
+      updateTranslateLink(state.ocrText);
+      updateTruncateWarning(state.ocrText);
+      els.btnRestoreOCR.classList.remove('is-visible');
+      setStatus('scanned', 'Texto original restaurado.');
+      scheduleReset(2000);
+    }
+
+    // ==========================================
+    // MODAL DE RESULTADO
+    // ==========================================
+    function openModal(confidence, heardText) {
+      let stateKey = 'error';
+      let color    = 'var(--color-error)';
+      let msg      = 'Não consegui ler bem. Tente outra foto ou edite o texto abaixo.';
+
+      if (confidence >= 80) {
+        stateKey = 'success';
+        color    = 'var(--color-success)';
+        msg      = 'Texto reconhecido com sucesso!';
+      } else if (confidence >= 50) {
+        stateKey = 'warning';
+        color    = 'var(--color-warning)';
+        msg      = 'Reconhecido, mas confira o texto.';
+      }
+
+      els.modalCounter.style.color = color;
+      animateCounter(confidence);
+
+      els.modalMessage.textContent = msg;
+      els.modalMessage.style.color = color;
+
+      els.modalHeard.value = heardText || '';
+      state.ocrText = heardText || '';
+      state.extractedText = heardText || '';
+      autoResizeTextarea(els.modalHeard);
+      els.btnRestoreOCR.classList.remove('is-visible');
+
+      updateTruncateWarning(heardText);
+
+      const iconEl = document.getElementById('modal-icon');
+      iconEl.classList.remove('is-success', 'is-warning', 'is-error');
+      iconEl.classList.add(`is-${stateKey}`);
+      iconEl.innerHTML = `<i data-lucide="${
+        stateKey === 'success' ? 'check-check' :
+        stateKey === 'warning' ? 'alert-circle' : 'scan-line'
+      }"></i>`;
+      lucide.createIcons({ nodes: [iconEl] });
+
+      els.modal.classList.add('show');
+      setTimeout(() => {
+        els.btnModalClose.focus();
+      }, 120);
+    }
+
+    function closeModal() {
+      els.modal.classList.remove('show');
+      if (state.counterAnimation) {
+        cancelAnimationFrame(state.counterAnimation);
+        state.counterAnimation = null;
+      }
+      clearTimeout(state.editDebounceTimer);
+
+      if (els.modalHeard.value.trim()) {
+        state.extractedText = els.modalHeard.value;
+      }
+
+      if (!state.speaking && !state.processing) setStatus('ready');
+    }
+
+    // ==========================================
+    // TTS
+    // ==========================================
+    function populateVoices() {
+      if (!supportedTTS) return;
+      const voices = synth.getVoices();
+      if (!voices.length) return;
+
+      const english = voices.filter(v => v.lang?.toLowerCase().startsWith('en'));
+      const list = english.length ? english : voices;
+
+      els.voice.innerHTML = '<option value="">Escolher voz</option>';
+      list.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.name;
+        opt.textContent = `${v.name} (${v.lang})`;
+        els.voice.appendChild(opt);
+      });
+    }
+
+    if (supportedTTS) {
+      populateVoices();
+      synth.onvoiceschanged = populateVoices;
+    }
+
+    els.slider.addEventListener('input', () => {
+      const v = parseFloat(els.slider.value);
+      els.speed.textContent = v.toFixed(1) + 'x';
+      const min = parseFloat(els.slider.min);
+      const max = parseFloat(els.slider.max);
+      const percent = ((v - min) / (max - min)) * 100;
+      els.slider.style.setProperty('--value', `${percent}%`);
+    });
+    els.slider.dispatchEvent(new Event('input'));
+
+    function speak() {
+      if (!supportedTTS) return;
+      if (synth.speaking) synth.cancel();
+
+      let content = '';
+      if (els.modal.classList.contains('show')) {
+        content = els.modalHeard.value.trim();
+      }
+      if (!content) content = state.extractedText.trim();
+
+      if (!content) {
+        setStatus('warning', 'Nenhum texto para ler');
+        scheduleReset(2500);
+        return;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(content);
+      utterance.lang   = 'en-US';
+      utterance.rate   = parseFloat(els.slider.value);
+      utterance.pitch  = 1;
+      utterance.volume = 1;
+
+      const chosen = els.voice.value;
+      if (chosen) {
+        const voice = synth.getVoices().find(v => v.name === chosen);
+        if (voice) utterance.voice = voice;
+      }
+
+      utterance.onstart = () => {
+        state.speaking = true;
+        updatePlayButton();
+        setStatus('playing');
+        startPlayerTracking(estimateDuration(content, parseFloat(els.slider.value)));
+      };
+
+      utterance.onend = () => {
+        state.speaking = false;
+        updatePlayButton();
+        resetPlayer();
+        setStatus('done');
+        scheduleReset(3000);
+      };
+
+      utterance.onerror = (e) => {
+        state.speaking = false;
+        updatePlayButton();
+        resetPlayer();
+        if (e.error === 'interrupted' || e.error === 'canceled') return;
+        setStatus('error', 'Erro na leitura');
+        scheduleReset(3500);
+      };
+
+      synth.speak(utterance);
+    }
+
+    function stop() {
+      if (!supportedTTS) return;
+      if (synth.speaking || synth.pending) {
+        synth.cancel();
+        state.speaking = false;
+        updatePlayButton();
+        resetPlayer();
+        setStatus('stopped');
+        scheduleReset(2000);
+      }
+    }
+
+    // ==========================================
+    // CÂMERA
+    // ==========================================
+    async function openCamera() {
+      if (!supportedCamera) {
+        setStatus('error', 'Câmera não suportada neste navegador');
+        scheduleReset(3000);
+        return;
+      }
+
+      try {
+        if (state.cameraStream) {
+          state.cameraStream.getTracks().forEach(t => t.stop());
+        }
+
+        const constraints = {
+          video: {
+            facingMode: state.facingMode,
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+          },
+          audio: false
+        };
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        state.cameraStream = stream;
+        els.cameraVideo.srcObject = stream;
+        els.cameraOverlay.classList.add('show');
+        setStatus('ready', 'Câmera aberta. Enquadre o texto.');
+      } catch (err) {
+        console.error('Camera error:', err);
+        if (err.name === 'NotAllowedError') {
+          setStatus('error', 'Permissão de câmera negada');
+        } else if (err.name === 'NotFoundError') {
+          setStatus('error', 'Nenhuma câmera encontrada');
+        } else {
+          setStatus('error', 'Não foi possível abrir a câmera');
+        }
+        scheduleReset(3500);
+      }
+    }
+
+    async function switchCamera() {
+      state.facingMode = state.facingMode === 'environment' ? 'user' : 'environment';
+
+      if (!state.cameraStream) return;
+
+      try {
+        state.cameraStream.getTracks().forEach(t => t.stop());
+
+        const constraints = {
+          video: {
+            facingMode: state.facingMode,
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+          },
+          audio: false
+        };
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        state.cameraStream = stream;
+        els.cameraVideo.srcObject = stream;
+
+        const label = state.facingMode === 'environment' ? 'traseira' : 'frontal';
+        setStatus('ready', `Câmera ${label} ativa`);
+      } catch (err) {
+        console.error('Switch camera error:', err);
+        state.facingMode = state.facingMode === 'environment' ? 'user' : 'environment';
+        setStatus('error', 'Não foi possível alternar a câmera');
+      }
+    }
+
+    function closeCamera() {
+      if (state.cameraStream) {
+        state.cameraStream.getTracks().forEach(t => t.stop());
+        state.cameraStream = null;
+      }
+      els.cameraVideo.srcObject = null;
+      els.cameraOverlay.classList.remove('show');
+    }
+
+    function capturePhoto() {
+      if (!state.cameraStream || !els.cameraVideo.videoWidth) {
+        setStatus('warning', 'Câmera não está pronta');
+        return;
+      }
+
+      const video = els.cameraVideo;
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+      const img = new Image();
+      img.onload = () => {
+        state.originalImage = img;
+        state.rotation = 0;
+        state.extractedText = '';
+        state.ocrText = '';
+        renderPreview();
+        setScanEnabled(true);
+        els.play.disabled = false;
+        updateTranslateLink('');
+        closeCamera();
+        setStatus('ready', 'Foto capturada. Pronto para escanear.');
+        scheduleReset(2500);
+      };
+      img.onerror = () => {
+        setStatus('error', 'Erro ao processar foto');
+        scheduleReset(3000);
+      };
+      img.src = dataUrl;
+    }
+
+    // ==========================================
+    // CARREGAMENTO / PREVIEW
+    // ==========================================
+    function loadImageFile(file) {
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        setStatus('error', 'Arquivo não é uma imagem');
+        scheduleReset(3000);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          state.originalImage = img;
+          state.rotation = 0;
+          state.extractedText = '';
+          state.ocrText = '';
+          renderPreview();
+          setScanEnabled(true);
+          els.play.disabled = false;
+          updateTranslateLink('');
+          setStatus('ready', 'Imagem carregada. Pronto para escanear.');
+          scheduleReset(2500);
+        };
+        img.onerror = () => {
+          setStatus('error', 'Não foi possível carregar a imagem');
+          scheduleReset(3000);
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function renderPreview() {
+      const img = state.originalImage;
+      if (!img) return;
+
+      const rot = state.rotation % 360;
+      const swap = rot === 90 || rot === 270;
+      const w = swap ? img.naturalHeight : img.naturalWidth;
+      const h = swap ? img.naturalWidth  : img.naturalHeight;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+
+      ctx.translate(w / 2, h / 2);
+      ctx.rotate(rot * Math.PI / 180);
+      ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
+
+      els.preview.src = canvas.toDataURL('image/png');
+      els.preview.style.display = 'block';
+      els.placeholder.style.display = 'none';
+      els.previewActions.style.display = 'flex';
+      els.previewWrap.classList.add('has-image');
+    }
+
+    // ==========================================
+    // PRÉ-PROCESSAMENTO
+    // ==========================================
+    function preprocessForOCR() {
+      const img = state.originalImage;
+      if (!img) return null;
+
+      const rot = state.rotation % 360;
+      const swap = rot === 90 || rot === 270;
+      const w = swap ? img.naturalHeight : img.naturalWidth;
+      const h = swap ? img.naturalWidth  : img.naturalHeight;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+
+      ctx.translate(w / 2, h / 2);
+      ctx.rotate(rot * Math.PI / 180);
+      ctx.drawImage(img, -img.naturalWidth / 2, -img.naturalHeight / 2);
+
+      const imageData = ctx.getImageData(0, 0, w, h);
+      const data = imageData.data;
+
+      let sum = 0;
+      for (let i = 0; i < data.length; i += 4) {
+        sum += 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+      }
+      const avg = sum / (data.length / 4);
+      const threshold = Math.max(80, Math.min(200, avg * 0.9));
+
+      for (let i = 0; i < data.length; i += 4) {
+        const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+        const val = gray > threshold ? 255 : 0;
+        data[i] = data[i + 1] = data[i + 2] = val;
+      }
+      ctx.putImageData(imageData, 0, 0);
+
+      return canvas.toDataURL('image/png');
+    }
+
+    // ==========================================
+    // OCR
+    // ==========================================
+    async function runOCR() {
+      if (!isTermsAccepted()) {
+        showTermsModal();
+        setStatus('warning', 'Aceite os Termos de Uso para continuar');
+        scheduleReset(3000);
+        return;
+      }
+
+      if (!supportedOCR) {
+        setStatus('error', 'Biblioteca de OCR não carregada');
+        scheduleReset(3500);
+        return;
+      }
+      if (!state.originalImage) return;
+
+      state.processing = true;
+      setScanProcessing(true);
+      setScanEnabled(false);
+      setStatus('processing');
+
+      try {
+        const processedDataUrl = preprocessForOCR();
+
+        const worker = await Tesseract.createWorker('eng');
+        const result = await worker.recognize(processedDataUrl);
+        const text = (result.data.text || '').trim();
+        const confidence = result.data.confidence || 0;
+        await worker.terminate();
+
+        state.extractedText = text;
+        state.processing = false;
+        setScanProcessing(false);
+        setScanEnabled(true);
+
+        if (!text) {
+          setStatus('warning', 'Nenhum texto detectado');
+          updateTranslateLink('');
+          openModal(0, '');
+          scheduleReset(4000);
+          return;
+        }
+
+        updateTranslateLink(text);
+        setStatus('scanned', 'Texto extraído. Edite se necessário e toque em Ouvir ou Traduzir.');
+        openModal(confidence, text);
+      } catch (err) {
+        console.error(err);
+        state.processing = false;
+        setScanProcessing(false);
+        setScanEnabled(true);
+        setStatus('error', 'Falha ao processar imagem');
+        scheduleReset(4000);
+      }
+    }
+
+    // ==========================================
+    // LIMPAR
+    // ==========================================
+    function clearImage() {
+      state.originalImage = null;
+      state.rotation = 0;
+      state.extractedText = '';
+      state.ocrText = '';
+      els.preview.src = '';
+      els.preview.style.display = 'none';
+      els.placeholder.style.display = 'flex';
+      els.previewActions.style.display = 'none';
+      els.previewWrap.classList.remove('has-image');
+      setScanEnabled(false);
+      els.play.disabled = true;
+      els.galleryInput.value = '';
+      updateTranslateLink('');
+      els.modalTruncateWarning.classList.remove('is-visible');
+      resetPlayer();
+      setStatus('ready');
+    }
+
+    // ==========================================
+    // RECORTE (CROP)
+    // ==========================================
+    function openCrop() {
+      const img = state.originalImage;
+      if (!img) return;
+
+      state.cropImg = img;
+      state.cropSelection = null;
+      state.cropDrag = null;
+
+      els.cropOverlay.classList.add('show');
+      els.cropOverlay.setAttribute('aria-hidden', 'false');
+
+      requestAnimationFrame(() => {
+        setupCropCanvas();
+        const cw = els.cropCanvas.width;
+        const ch = els.cropCanvas.height;
+        const pad = 0.1;
+        state.cropSelection = {
+          x: cw * pad,
+          y: ch * pad,
+          w: cw * (1 - pad * 2),
+          h: ch * (1 - pad * 2),
+        };
+        drawCrop();
+      });
+    }
+
+    function setupCropCanvas() {
+      const stage = els.cropStage;
+      const img = state.cropImg;
+      if (!stage || !img) return;
+
+      const stageW = stage.clientWidth;
+      const stageH = stage.clientHeight;
+      if (!stageW || !stageH) return;
+
+      const imgRatio = img.naturalWidth / img.naturalHeight;
+      const stageRatio = stageW / stageH;
+
+      let drawW, drawH;
+      if (imgRatio > stageRatio) {
+        drawW = stageW;
+        drawH = stageW / imgRatio;
+      } else {
+        drawH = stageH;
+        drawW = stageH * imgRatio;
+      }
+
+      const dpr = window.devicePixelRatio || 1;
+      els.cropCanvas.width = Math.round(drawW * dpr);
+      els.cropCanvas.height = Math.round(drawH * dpr);
+      els.cropCanvas.style.width = drawW + 'px';
+      els.cropCanvas.style.height = drawH + 'px';
+
+      state.cropScale = els.cropCanvas.width / img.naturalWidth;
+
+      drawCrop();
+    }
+
+    function drawCrop() {
+      const canvas = els.cropCanvas;
+      const ctx = canvas.getContext('2d');
+      const img = state.cropImg;
+      if (!ctx || !img) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      const sel = state.cropSelection;
+      if (!sel) return;
+
+      ctx.save();
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+      ctx.fillRect(0, 0, canvas.width, sel.y);
+      ctx.fillRect(0, sel.y + sel.h, canvas.width, canvas.height - (sel.y + sel.h));
+      ctx.fillRect(0, sel.y, sel.x, sel.h);
+      ctx.fillRect(sel.x + sel.w, sel.y, canvas.width - (sel.x + sel.w), sel.h);
+      ctx.restore();
+
+      ctx.save();
+      ctx.strokeStyle = '#c20000';
+      ctx.lineWidth = Math.max(2, canvas.width / 400);
+      ctx.strokeRect(sel.x, sel.y, sel.w, sel.h);
+      ctx.restore();
+
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+      ctx.lineWidth = 1;
+      for (let i = 1; i <= 2; i++) {
+        const gx = sel.x + (sel.w * i) / 3;
+        const gy = sel.y + (sel.h * i) / 3;
+        ctx.beginPath();
+        ctx.moveTo(gx, sel.y);
+        ctx.lineTo(gx, sel.y + sel.h);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(sel.x, gy);
+        ctx.lineTo(sel.x + sel.w, gy);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      const handleSize = Math.max(16, canvas.width / 45);
+      const half = handleSize / 2;
+      const handles = [
+        { x: sel.x, y: sel.y },
+        { x: sel.x + sel.w, y: sel.y },
+        { x: sel.x, y: sel.y + sel.h },
+        { x: sel.x + sel.w, y: sel.y + sel.h },
+        { x: sel.x + sel.w / 2, y: sel.y },
+        { x: sel.x + sel.w / 2, y: sel.y + sel.h },
+        { x: sel.x, y: sel.y + sel.h / 2 },
+        { x: sel.x + sel.w, y: sel.y + sel.h / 2 },
+      ];
+
+      ctx.save();
+      handles.forEach(h => {
+        ctx.fillStyle = '#fff';
+        ctx.strokeStyle = '#c20000';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(h.x, h.y, half, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
+    function getCanvasPoint(e) {
+      const canvas = els.cropCanvas;
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY,
+      };
+    }
+
+    function hitTestHandle(pt) {
+      const sel = state.cropSelection;
+      if (!sel) return null;
+      const tolerance = Math.max(20, els.cropCanvas.width / 40);
+
+      const handles = [
+        { x: sel.x, y: sel.y, type: 'nw' },
+        { x: sel.x + sel.w, y: sel.y, type: 'ne' },
+        { x: sel.x, y: sel.y + sel.h, type: 'sw' },
+        { x: sel.x + sel.w, y: sel.y + sel.h, type: 'se' },
+        { x: sel.x + sel.w / 2, y: sel.y, type: 'n' },
+        { x: sel.x + sel.w / 2, y: sel.y + sel.h, type: 's' },
+        { x: sel.x, y: sel.y + sel.h / 2, type: 'w' },
+        { x: sel.x + sel.w, y: sel.y + sel.h / 2, type: 'e' },
+      ];
+
+      for (const h of handles) {
+        if (Math.abs(pt.x - h.x) <= tolerance && Math.abs(pt.y - h.y) <= tolerance) {
+          return h.type;
+        }
+      }
+
+      if (pt.x >= sel.x && pt.x <= sel.x + sel.w && pt.y >= sel.y && pt.y <= sel.y + sel.h) {
+        return 'move';
+      }
+      return null;
+    }
+
+    function onCropDown(e) {
+      if (!state.cropSelection) return;
+      e.preventDefault();
+      const pt = getCanvasPoint(e);
+      const type = hitTestHandle(pt);
+      if (!type) return;
+
+      state.cropDrag = {
+        type,
+        startX: pt.x,
+        startY: pt.y,
+        orig: { ...state.cropSelection },
+      };
+    }
+
+    function onCropMove(e) {
+      if (!state.cropDrag || !state.cropSelection) return;
+      e.preventDefault();
+      const pt = getCanvasPoint(e);
+      const dx = pt.x - state.cropDrag.startX;
+      const dy = pt.y - state.cropDrag.startY;
+      const orig = state.cropDrag.orig;
+      const type = state.cropDrag.type;
+      const cw = els.cropCanvas.width;
+      const ch = els.cropCanvas.height;
+      const minSize = 40;
+
+      let { x, y, w, h } = orig;
+
+      if (type === 'move') {
+        x = Math.max(0, Math.min(cw - w, orig.x + dx));
+        y = Math.max(0, Math.min(ch - h, orig.y + dy));
+      } else {
+        if (type.includes('w')) {
+          const newX = Math.max(0, Math.min(orig.x + orig.w - minSize, orig.x + dx));
+          w = orig.w + (orig.x - newX);
+          x = newX;
+        }
+        if (type.includes('e')) {
+          w = Math.max(minSize, Math.min(cw - orig.x, orig.w + dx));
+        }
+        if (type.includes('n')) {
+          const newY = Math.max(0, Math.min(orig.y + orig.h - minSize, orig.y + dy));
+          h = orig.h + (orig.y - newY);
+          y = newY;
+        }
+        if (type.includes('s')) {
+          h = Math.max(minSize, Math.min(ch - orig.y, orig.h + dy));
+        }
+      }
+
+      state.cropSelection = { x, y, w, h };
+      drawCrop();
+    }
+
+    function onCropUp() {
+      state.cropDrag = null;
+    }
+
+    function cancelCrop() {
+      state.cropDrag = null;
+      state.cropSelection = null;
+      state.cropImg = null;
+      els.cropOverlay.classList.remove('show');
+      els.cropOverlay.setAttribute('aria-hidden', 'true');
+    }
+
+    function applyCrop() {
+      const img = state.cropImg;
+      const sel = state.cropSelection;
+      if (!img || !sel) return;
+
+      const scale = state.cropScale;
+      const sx = sel.x / scale;
+      const sy = sel.y / scale;
+      const sw = sel.w / scale;
+      const sh = sel.h / scale;
+
+      const out = document.createElement('canvas');
+      out.width = Math.round(sw);
+      out.height = Math.round(sh);
+      const ctx = out.getContext('2d');
+      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, out.width, out.height);
+
+      const dataUrl = out.toDataURL('image/png');
+      const croppedImg = new Image();
+      croppedImg.onload = () => {
+        state.originalImage = croppedImg;
+        state.rotation = 0;
+        state.extractedText = '';
+        state.ocrText = '';
+        renderPreview();
+        updateTranslateLink('');
+        cancelCrop();
+        setStatus('ready', 'Imagem recortada. Pronto para escanear.');
+        scheduleReset(2500);
+      };
+      croppedImg.src = dataUrl;
+    }
+
+    // ==========================================
+    // EVENTOS
+    // ==========================================
+    els.btnOpenCamera.addEventListener('click', openCamera);
+    els.btnCameraClose.addEventListener('click', closeCamera);
+    els.btnCameraCapture.addEventListener('click', capturePhoto);
+    els.btnCameraSwitch.addEventListener('click', switchCamera);
+
+    els.galleryInput.addEventListener('change', (e) => loadImageFile(e.target.files[0]));
+
+    els.btnCrop.addEventListener('click', openCrop);
+    els.btnCropClose.addEventListener('click', cancelCrop);
+    els.btnCropCancel.addEventListener('click', cancelCrop);
+    els.btnCropApply.addEventListener('click', applyCrop);
+
+    els.btnRotate.addEventListener('click', () => {
+      if (!state.originalImage) return;
+      state.rotation = (state.rotation + 90) % 360;
+      renderPreview();
+      setStatus('ready', 'Imagem girada. Pronto para escanear.');
+      scheduleReset(2000);
+    });
+
+    els.btnClear.addEventListener('click', clearImage);
+
+    // Escanear: registra nos dois botões
+    els.btnScan.addEventListener('click', runOCR);
+    if (els.btnScanMobile) els.btnScanMobile.addEventListener('click', runOCR);
+
+    // Botão unificado Ouvir/Parar
+    els.play.addEventListener('click', () => {
+      if (state.speaking) {
+        stop();
+      } else {
+        speak();
+      }
+    });
+
+    els.modalHeard.addEventListener('input', () => {
+      autoResizeTextarea(els.modalHeard);
+      handleEdit();
+    });
+
+    els.btnRestoreOCR.addEventListener('click', restoreOCR);
+
+    els.btnTranslate.addEventListener('click', (e) => {
+      if (els.btnTranslate.getAttribute('aria-disabled') === 'true') {
+        e.preventDefault();
+        setStatus('warning', 'Escaneie um texto primeiro para traduzir');
+        scheduleReset(2500);
+      }
+    });
+
+    els.btnModalClose.addEventListener('click', closeModal);
+    els.modal.addEventListener('click', (e) => {
+      if (e.target === els.modal) closeModal();
+    });
+
+    els.cropCanvas.addEventListener('pointerdown', onCropDown);
+    els.cropCanvas.addEventListener('pointermove', onCropMove);
+    els.cropCanvas.addEventListener('pointerup', onCropUp);
+    els.cropCanvas.addEventListener('pointercancel', onCropUp);
+
+    window.addEventListener('resize', () => {
+      if (els.cropOverlay.classList.contains('show')) {
+        setupCropCanvas();
+        const cw = els.cropCanvas.width;
+        const ch = els.cropCanvas.height;
+        if (state.cropSelection) {
+          const sel = state.cropSelection;
+          const oldW = cw, oldH = ch;
+          state.cropSelection = {
+            x: (sel.x / (oldW || cw)) * cw,
+            y: (sel.y / (oldH || ch)) * ch,
+            w: (sel.w / (oldW || cw)) * cw,
+            h: (sel.h / (oldH || ch)) * ch,
+          };
+        }
+        drawCrop();
+      }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && synth.speaking) {
+        synth.cancel();
+        state.speaking = false;
+        updatePlayButton();
+        resetPlayer();
+        setStatus('stopped');
+      }
+    });
+
+    if (!supportedTTS) {
+      setStatus('error', 'Navegador sem suporte a áudio');
+      els.play.disabled = true;
+    }
+
+    if (!supportedOCR) {
+      setStatus('error', 'Biblioteca de OCR não carregada');
+      setScanEnabled(false);
+    }
+
+    if (!supportedCamera) {
+      els.btnOpenCamera.disabled = true;
+      els.btnOpenCamera.title = 'Câmera não suportada';
+    }
+  </script>
+</body>
+</html>
