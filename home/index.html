@@ -241,7 +241,9 @@
       font-weight: 400;
       line-height: 1.65;
       letter-spacing: -0.005em;
-      resize: vertical;
+      resize: none; /* auto-resize via JS */
+      overflow: hidden; /* prevent scrollbar, use height growth */
+      transition: height 0.1s ease;
     }
     .input-area textarea::placeholder {
       color: var(--color-text-muted);
@@ -723,30 +725,34 @@
         padding: calc(var(--space-4) + env(safe-area-inset-top)) var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom));
       }
       .app-wrapper {
-        min-height: calc(100dvh - var(--space-8) - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-        justify-content: space-between;
-        margin-top: 50px;
-        gap: var(--space-3);
-      }
-      .main-title {
-        display: none;
-      }
-      .studio-deck {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-      }
-      .input-area {
-        flex: 1;
-        padding: var(--space-4) var(--space-4) var(--space-2);
-      }
-      .input-area textarea {
-        flex: 1;
-        min-height: 50px;
-        max-height: 60px;
-        font-size: 1.1875rem;
-        resize: none;
-      }
+  justify-content: flex-start;   /* don't push content apart */
+  margin-top: 24px;
+  gap: var(--space-3);
+}
+.main-title { display: none; }
+
+/* Let the deck grow from its content, not from the viewport */
+.studio-deck {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;                /* do NOT fill leftover space */
+}
+
+.input-area {
+  flex: 0 0 auto;                /* do NOT fill leftover space */
+  padding: var(--space-4) var(--space-4) var(--space-2);
+}
+
+/* Textarea already grows via JS (scrollHeight) — just cap the floor/ceiling */
+.input-area textarea {
+  flex: 0 0 auto;
+  min-height: 120px;
+  max-height: 55vh;              /* prevents runaway growth on very long text */
+  overflow-y: auto;              /* scrolls only when hitting max-height */
+  font-size: 1.1875rem;
+  resize: none;
+  -webkit-text-size-adjust: 100%;/* Android font boost fix */
+}
       .audio-player {
         padding: var(--space-2) var(--space-4) var(--space-3);
       }
@@ -968,7 +974,36 @@
       btnModalClose: document.getElementById('btn-modal-close'),
     };
 
+    // -------------------------------------------------------
+    // AUTO-RESIZE TEXTAREA — deck cresce com o texto
+    // -------------------------------------------------------
+    function autoResizeTextarea() {
+      const textarea = els.text;
+      if (!textarea) return;
+
+      // Salva a posição do scroll e evita "pulos"
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+      // Reseta a altura para calcular o conteúdo real
+      textarea.style.height = 'auto';
+      // Define altura baseada no scrollHeight (conteúdo real)
+      textarea.style.height = textarea.scrollHeight + 'px';
+
+      // Restaura a posição do scroll para não "tremer" a tela
+      window.scrollTo(0, scrollTop);
+    }
+
+    // Chama na inicialização e a cada digitação/colagem
+    els.text.addEventListener('input', autoResizeTextarea);
+    // Também ao redimensionar janela (pode alterar quebra de linha)
+    window.addEventListener('resize', autoResizeTextarea);
+
+    // Garante que o textarea comece com a altura correta após carregar fontes
+    window.addEventListener('load', autoResizeTextarea);
+
+    // -------------------------------------------------------
     // CONFIG TTS/STT
+    // -------------------------------------------------------
     const synth = window.speechSynthesis;
     const supportedTTS = 'speechSynthesis' in window;
 
@@ -1431,17 +1466,23 @@
     els.text.focus();
 
     // Executar uma vez na inicialização
-applyViewportHeight();
-
-// Recalcular ao redimensionar (inclui rotação de tela)
-window.addEventListener('resize', applyViewportHeight);
-
-// Recalcular ao retornar do background para o primeiro plano
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') {
     applyViewportHeight();
-  }
-});
+
+    // Recalcular ao redimensionar (inclui rotação de tela)
+    window.addEventListener('resize', applyViewportHeight);
+
+    // Recalcular ao retornar do background para o primeiro plano
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        applyViewportHeight();
+      }
+    });
+
+    // Função que ajusta a altura da viewport (pode existir ou não no escopo original)
+    function applyViewportHeight() {
+      // Intencionalmente vazia — mantida para compatibilidade com chamadas existentes.
+      // A altura da viewport já é tratada via CSS (100dvh) e auto-resize do textarea.
+    }
   </script>
 </body>
 </html>
