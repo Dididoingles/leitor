@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <link rel="icon" type="image/x-icon" href="../favicon.ico">
-  <meta name="description" content="Scanner de pronúncia em inglês: tire uma foto de um texto, extraia o conteúdo e ouça a pronúncia.">
+  <meta name="description" content="Scanner de pronúncia em inglês: selecione uma imagem de um texto, extraia o conteúdo e ouça a pronúncia.">
   <meta name="theme-color" content="#0a0a0a">
   <title>Leitor Interativo</title>
 
@@ -12,7 +12,7 @@
   <meta property="og:locale" content="pt_BR">
   <meta property="og:site_name" content="Leitor Interativo">
   <meta property="og:title" content="Leitor Interativo">
-  <meta property="og:description" content="Tire uma foto de um texto em inglês, extraia o conteúdo e ouça a pronúncia na hora.">
+  <meta property="og:description" content="Selecione uma imagem de um texto em inglês, extraia o conteúdo e ouça a pronúncia na hora.">
   <meta property="og:url" content="https://dididoingles.github.io/leitor/scanner/">
   <meta property="og:image" content="https://dididoingles.github.io/leitor/metatag.jpg">
   <meta property="og:image:width" content="1200">
@@ -21,12 +21,12 @@
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Scanner — Leitor Interativo">
-  <meta name="twitter:description" content="Tire uma foto de um texto em inglês, extraia o conteúdo e ouça a pronúncia na hora.">
+  <meta name="twitter:description" content="Selecione uma imagem de um texto em inglês, extraia o conteúdo e ouça a pronúncia na hora.">
   <meta name="twitter:image" content="https://dididoingles.github.io/leitor/metatag.jpg">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
@@ -46,7 +46,9 @@
       --color-warning: #fbbf24;
       --color-error: #f87171;
 
-      --font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+      --font-ui: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-reader: 'Newsreader', Georgia, serif;
+
       --text-xs: 0.75rem;
       --text-sm: 0.875rem;
       --text-base: 1rem;
@@ -70,22 +72,22 @@
     }
 
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
     html { color-scheme: dark; }
 
     body {
-      font-family: var(--font-family);
+      font-family: var(--font-ui);
       background:
         radial-gradient(circle at 50% -10%, rgba(194, 0, 0, 0.10), transparent 55%),
         radial-gradient(circle at 110% 110%, rgba(194, 0, 0, 0.05), transparent 50%),
         var(--color-bg);
       background-attachment: fixed;
       color: var(--color-text);
-      min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: var(--space-4);
+      padding: calc(var(--space-8) + env(safe-area-inset-top)) var(--space-4) calc(var(--space-6) + env(safe-area-inset-bottom));
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       line-height: 1.5;
@@ -93,6 +95,7 @@
       position: relative;
     }
 
+    /* BACKGROUND SOUNDWAVES */
     .bg-waves {
       position: fixed;
       bottom: 0; left: 0; right: 0;
@@ -108,7 +111,6 @@
       mask-image: linear-gradient(to top, #000 10%, transparent 100%);
       -webkit-mask-image: linear-gradient(to top, #000 10%, transparent 100%);
     }
-
     .bg-waves span {
       flex: 1 1 0;
       min-width: 2px;
@@ -120,84 +122,89 @@
       transform-origin: bottom;
     }
 
+    /* LINK DE VOLTAR SOLTO NO TOPO (SEM CONTAINER) */
+    .top-nav {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 740px;
+      margin: 0 auto var(--space-4);
+      display: flex;
+      justify-content: flex-end;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--color-text-muted);
+      font-size: var(--text-xs);
+      font-weight: 500;
+      text-decoration: none;
+      padding: var(--space-1) 0;
+      transition: color var(--duration-fast) ease, transform var(--duration-fast) ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .back-link svg {
+      width: 15px;
+      height: 15px;
+      color: var(--color-accent);
+      flex-shrink: 0;
+    }
+    .back-link:hover {
+      color: var(--color-text);
+      transform: translateX(-2px);
+    }
+
+    /* MAIN WRAPPER */
     .app-wrapper {
       position: relative;
       z-index: 1;
       width: 100%;
-      max-width: 680px;
+      max-width: 740px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      max-height: calc(100vh - var(--space-8));
+      gap: var(--space-4);
       opacity: 0;
       animation: fadeIn 0.5s var(--ease-out) 0.1s forwards;
     }
 
-    .header { text-align: center; margin-bottom: var(--space-5); flex-shrink: 0; }
-
+    /* HEADER LIMPO (SEM CAIXA) */
+    .header {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
     .header__logo {
       display: flex;
       align-items: center;
-      justify-content: center;
       gap: var(--space-2);
-      margin-bottom: var(--space-1);
     }
-
-    .header__logo svg { width: 24px; height: 24px; color: var(--color-accent); }
-
-    .header h1 { font-size: var(--text-lg); font-weight: 600; letter-spacing: -0.02em; }
-
-    .header p {
-      font-size: var(--text-xs);
-      color: var(--color-text-dim);
-      font-weight: 300;
-      margin-bottom: var(--space-3);
+    .header__logo svg {
+      width: 22px;
+      height: 22px;
+      color: var(--color-accent);
+      flex-shrink: 0;
     }
-
-    .main-title {
+    .header h1 {
       font-size: var(--text-base);
-      font-weight: 500;
-      text-align: center;
-      margin-bottom: var(--space-4);
-      color: var(--color-text);
-      letter-spacing: -0.01em;
-      flex-shrink: 0;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .main-title {
+      font-size: var(--text-xs);
+      font-weight: 400;
+      color: var(--color-text-muted);
+      letter-spacing: 0.01em;
     }
 
-    /* ==========================================
-       CAPTURE AREA (desktop: grid 2 colunas)
-       ========================================== */
-    .capture-area {
-      display: grid;
-      grid-template-columns: 160px 1fr; /* Largura fixa para os botões, resto para a imagem */
-      grid-template-rows: auto auto;
-      gap: var(--space-3);
-      margin-bottom: var(--space-4);
-      flex-shrink: 0;
-      align-items: stretch;
-      padding-top: var(--space-5);
-    }
-
-    .capture-area .capture-actions {
-      grid-column: 1;
-      grid-row: 1;
+    /* BANCADA PRINCIPAL (IMAGEM + PLAYER + AJUSTES) */
+    .workbench {
       display: flex;
       flex-direction: column;
       gap: var(--space-3);
-      justify-content: space-between;
-      justify-self: start;
-      width: 100%;
-    }
-
-    .capture-area .capture-actions .btn {
-      height: 48px;
-      min-height: 48px;
-      width: 100%;
-      padding: 0 var(--space-3);
-    }
-
-    .capture-buttons {
-      display: contents;
     }
 
     .file-input-hidden {
@@ -211,58 +218,77 @@
     }
 
     .preview-wrap {
-      grid-column: 2;
-      grid-row: 1;
       position: relative;
-      width: 100%;
-      height: 100%;
-      min-height: 160px;
-      max-height: calc(48px * 3 + var(--space-3) * 2); /* Alinha com a altura dos botões */
+      min-height: 185px;
       border-radius: var(--radius-lg);
       overflow: hidden;
-      background: #151515;
+      background: rgba(255, 255, 255, 0.02);
       border: 1px dashed var(--color-border);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: border-color var(--duration-fast) ease;
+      transition: border-color var(--duration-fast) ease, background var(--duration-fast) ease;
     }
-
-    .preview-wrap.has-image { border-style: solid; border-color: var(--color-border-strong); }
-
+    .preview-wrap.is-picker {
+      cursor: pointer;
+    }
+    .preview-wrap.is-picker:hover {
+      border-color: rgba(194, 0, 0, 0.65);
+      background: rgba(194, 0, 0, 0.04);
+    }
+    .preview-wrap.has-image {
+      border-style: solid;
+      border-color: var(--color-border-strong);
+      background: #121212;
+      cursor: default;
+    }
     .preview-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain; /* Mostra a imagem inteira, sem cortar */
-  display: block;
-}
-
-    .preview-placeholder {
+      width: 100%;
+      height: 100%;
+      max-height: 250px;
+      object-fit: contain;
+      display: block;
+    }
+    .preview-picker {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: var(--space-2);
-      padding: var(--space-6);
+      width: 100%;
+      height: 100%;
+      min-height: 185px;
+      padding: var(--space-5);
       text-align: center;
       color: var(--color-text-muted);
       font-size: var(--text-sm);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: color var(--duration-fast) ease;
     }
-
-    .preview-placeholder svg { width: 40px; height: 40px; color: var(--color-text-muted); opacity: 0.6; }
+    .preview-picker:hover {
+      color: var(--color-text-dim);
+    }
+    .preview-picker svg {
+      width: 30px;
+      height: 30px;
+      color: var(--color-accent);
+      opacity: 0.85;
+    }
 
     .preview-actions {
       position: absolute;
-      top: var(--space-2); right: var(--space-2);
+      top: var(--space-2);
+      right: var(--space-2);
       display: flex;
       gap: var(--space-2);
     }
-
     .btn-icon-overlay {
-      width: 36px; height: 36px;
+      width: 34px;
+      height: 34px;
       border-radius: var(--radius-md);
-      background: rgba(0, 0, 0, 0.65);
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(10, 10, 10, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.14);
       color: #fff;
       display: inline-flex;
       align-items: center;
@@ -271,62 +297,161 @@
       transition: background var(--duration-fast) ease;
       -webkit-tap-highlight-color: transparent;
     }
-    .btn-icon-overlay:hover { background: rgba(0, 0, 0, 0.85); }
-    .btn-icon-overlay svg { width: 16px; height: 16px; }
+    .btn-icon-overlay:hover { background: rgba(10, 10, 10, 0.92); }
+    .btn-icon-overlay svg { width: 15px; height: 15px; }
 
-    /* ==========================================
-       PLAYER DE ÁUDIO
-       ========================================== */
+    /* BARRA DE PROGRESSO DO ÁUDIO */
     .audio-player {
-      grid-column: 1 / -1; /* Ocupa a linha toda */
-      grid-row: 2;
       display: flex;
       align-items: center;
       gap: var(--space-3);
-      padding: var(--space-2) var(--space-3);
-      background: #151515;
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      flex-shrink: 0;
-      height: 48px;
-      transition: border-color var(--duration-fast) ease;
+      padding: var(--space-1) 0;
     }
-
-    .audio-player.is-active {
-      border-color: rgba(194, 0, 0, 0.4);
-    }
-
     .audio-player__time {
-      font-size: 0.7rem;
+      font-size: 0.6875rem;
       font-variant-numeric: tabular-nums;
       color: var(--color-text-muted);
-      min-width: 34px;
+      min-width: 30px;
       text-align: center;
       flex-shrink: 0;
     }
-
+    .audio-player.is-active .audio-player__time {
+      color: var(--color-text-dim);
+    }
     .audio-player__track {
       flex: 1;
-      height: 6px;
+      height: 4px;
       background: rgba(255, 255, 255, 0.08);
-      border-radius: 3px;
+      border-radius: 999px;
       overflow: hidden;
       position: relative;
+      cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     }
-
     .audio-player__fill {
       height: 100%;
       width: 0%;
       background: linear-gradient(to right, var(--color-accent), var(--color-accent-hover));
-      border-radius: 3px;
+      border-radius: 999px;
       transition: width 0.1s linear;
       pointer-events: none;
     }
 
-    /* ==========================================
-       BOTÕES BASE
-       ========================================== */
+    /* AJUSTES EM LINHA (SEM CAIXAS AO REDOR) */
+    .tuning-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      padding-top: var(--space-1);
+    }
+
+    .voice-selector {
+      position: relative;
+      flex: 1;
+      max-width: 260px;
+      min-width: 0;
+    }
+    .voice-selector select {
+      width: 100%;
+      height: 34px;
+      padding: 0 24px 0 0;
+      background: transparent;
+      border: none;
+      color: var(--color-text-dim);
+      font-family: var(--font-ui);
+      font-size: var(--text-xs);
+      font-weight: 500;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      text-overflow: ellipsis;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='0.55' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 2px center;
+      transition: color var(--duration-fast) ease;
+    }
+    .voice-selector select:hover,
+    .voice-selector select:focus-visible {
+      outline: none;
+      color: var(--color-text);
+    }
+    .voice-selector select option {
+      background: #151515;
+      color: var(--color-text);
+    }
+
+    .speed-control {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      flex-shrink: 0;
+    }
+    .speed-control__header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .speed-control__header label {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
+    .speed-control__value {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--color-text);
+      min-width: 30px;
+      text-align: right;
+    }
+    .speed-control input[type="range"] {
+      width: 96px;
+      height: 4px;
+      appearance: none;
+      -webkit-appearance: none;
+      background: linear-gradient(to right, var(--color-accent) var(--value, 33%), rgba(255, 255, 255, 0.14) var(--value, 33%));
+      border-radius: 999px;
+      outline: none;
+      cursor: pointer;
+    }
+    .speed-control input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--color-text);
+      border: 2px solid var(--color-accent);
+      cursor: pointer;
+      transition: transform var(--duration-fast) ease;
+    }
+    .speed-control input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+    .speed-control input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--color-text);
+      border: 2px solid var(--color-accent);
+      cursor: pointer;
+    }
+
+    /* COLUNA / ÁREA DE AÇÕES + STATUS */
+    .actions-column {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-2);
+    }
+
     .btn {
       display: inline-flex;
       align-items: center;
@@ -334,50 +459,61 @@
       gap: var(--space-2);
       padding: 0 var(--space-4);
       height: 48px;
-      min-height: 48px;
-      flex-shrink: 0;
       border: 1px solid transparent;
-      border-radius: var(--radius-md);
-      font-family: inherit;
+      border-radius: var(--radius-lg);
+      font-family: var(--font-ui);
       font-size: var(--text-sm);
-      font-weight: 500;
-      line-height: 1;
+      font-weight: 600;
+      letter-spacing: -0.01em;
       cursor: pointer;
       transition: all var(--duration-fast) ease;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
-      text-decoration: none;
       white-space: nowrap;
+      text-decoration: none;
     }
-
     .btn:disabled,
     .btn[aria-disabled="true"] {
-      opacity: 0.5;
+      opacity: 0.45;
       cursor: not-allowed;
       pointer-events: none;
+      box-shadow: none;
     }
-
     .btn svg { width: 18px; height: 18px; flex-shrink: 0; }
 
     .btn--primary {
       background: var(--color-accent);
       color: #fff;
+      box-shadow: 0 8px 20px rgba(194, 0, 0, 0.25);
     }
-    .btn--primary:hover:not(:disabled):not([aria-disabled="true"]) { background: var(--color-accent-hover); }
-
-    .btn--secondary {
-      background: var(--color-surface-hover);
-      color: var(--color-text);
-      border-color: var(--color-border);
+    .btn--primary:hover:not(:disabled):not([aria-disabled="true"]) {
+      background: var(--color-accent-hover);
+      transform: translateY(-1px);
     }
-    .btn--secondary:hover:not(:disabled):not([aria-disabled="true"]) { background: rgba(255, 255, 255, 0.14); }
+    .btn--primary:active:not(:disabled):not([aria-disabled="true"]) {
+      transform: translateY(0);
+    }
 
     .btn--record {
       background: #151515;
-      border: 1px solid var(--color-accent);
-      color: #fff;
+      border: 1px solid var(--color-border-strong);
+      color: var(--color-text);
     }
-    .btn--record:hover:not(:disabled) { background: #2a0a0a; }
+    .btn--record svg { color: var(--color-accent); }
+    .btn--record:hover:not(:disabled) {
+      border-color: var(--color-accent);
+      background: rgba(194, 0, 0, 0.08);
+    }
+    .btn--record.processing { opacity: 0.85; cursor: wait; }
+    .btn--record.processing svg { animation: spin 1s linear infinite; }
+
+    .btn--play.is-playing {
+      background: #151515;
+      border-color: var(--color-accent);
+      color: #fff;
+      box-shadow: none;
+    }
+    .btn--play.is-playing:hover { background: #240c0c; }
 
     .btn--translate {
       background: #151515;
@@ -389,179 +525,50 @@
       border-color: var(--color-accent);
     }
 
-    /* Escanear: desktop mostra empilhado; mobile mostra na barra */
-    .btn-scan-mobile { display: none; }
-    .btn-scan-desktop { display: inline-flex; }
-
-    .btn--record.processing { opacity: 0.85; cursor: wait; }
-    .btn--record.processing svg { animation: spin 1s linear infinite; }
-
-    /* ==========================================
-       CONTROLS BAR (horizontal)
-       ========================================== */
-    .controls-bar {
-      display: flex;
-      gap: var(--space-2);
-      margin-bottom: var(--space-3);
-      flex-shrink: 0;
-      align-items: stretch;
-      flex-wrap: wrap;
-    }
-
-    .controls-bar .btn {
-      height: 48px;
-      min-height: 48px;
-    }
-
-    .btn-play-pause {
-      min-width: 110px;
-      flex: 0 0 auto;
-    }
-
-    .btn-play-pause.is-playing {
-      background: #151515;
-      border: 1px solid var(--color-accent);
-      color: #fff;
-    }
-    .btn-play-pause.is-playing:hover { background: #2a0a0a; }
-
-    #tts-play.is-playing svg { animation: pulse 1.2s infinite; }
-
-    .voice-selector {
-      flex: 0 0 170px;
-      min-width: 130px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-    }
-
-    .voice-selector select {
-      width: 100%;
-      height: 100%;
-      padding: 0 var(--space-3);
-      padding-right: calc(var(--space-3) + 20px);
-      background: #151515;
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      color: var(--color-text);
-      font-family: inherit;
-      font-size: var(--text-sm);
-      font-weight: 500;
-      line-height: 1.5;
-      cursor: pointer;
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='0.6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right var(--space-2) center;
-      display: flex;
-      align-items: center;
-    }
-    .voice-selector select:focus-visible { outline: none; border-color: var(--color-accent); }
-    .voice-selector select option { background: #1a1a1a; color: var(--color-text); }
-
-    .speed-control {
-      flex: 1 1 140px;
-      min-width: 120px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      height: 48px;
-    }
-
-    .speed-control__header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2px;
-    }
-
-    .speed-control__header label { font-size: 0.65rem; color: var(--color-text-dim); }
-    .speed-control__value { font-size: 0.65rem; font-weight: 600; color: var(--color-text); }
-
-    .speed-control input[type="range"] {
-      width: 100%; height: 4px;
-      appearance: none;
-      -webkit-appearance: none;
-      background: linear-gradient(to right, var(--color-accent) var(--value, 33%), var(--color-border) var(--value, 33%));
-      border-radius: 2px;
-      outline: none;
-      cursor: pointer;
-    }
-
-    .speed-control input[type="range"]::-webkit-slider-thumb {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 16px; height: 16px;
-      border-radius: 50%;
-      background: var(--color-accent);
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 0 0 2px var(--color-bg);
-    }
-
-    .speed-control input[type="range"]::-moz-range-thumb {
-      width: 16px; height: 16px;
-      border-radius: 50%;
-      background: var(--color-accent);
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 0 0 2px var(--color-bg);
-    }
-
-    /* ==========================================
-       STATUS
-       ========================================== */
+    /* STATUS EM TEXTO PURO LOGO ABAIXO DOS BOTÕES */
     .status {
       display: flex;
       justify-content: center;
       align-items: center;
-      width: 100%;
-      padding-top: var(--space-4);
-      min-height: 44px;
-      flex-shrink: 0;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      margin-top: var(--space-2);
-      color: var(--color-text-dim);
+      padding-top: var(--space-1);
+      color: var(--color-text-muted);
     }
-
     .status-content {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: var(--space-2);
-      max-width: 90%;
+      gap: 6px;
       text-align: center;
     }
-
     .status-icon {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 16px; height: 16px;
+      width: 14px;
+      height: 14px;
       flex-shrink: 0;
     }
-
     .status-icon svg { width: 100%; height: 100%; }
-
     #tts-status-text { font-size: var(--text-xs); line-height: 1.4; }
+    .status--playing,
+    .status--processing { color: var(--color-text-dim); }
+    .status--playing .status-icon svg {
+      color: var(--color-accent);
+      animation: pulse 1.2s infinite;
+    }
+    .status--processing .status-icon svg {
+      color: var(--color-accent);
+      animation: spin 1s linear infinite;
+    }
 
-    .status--playing .status-icon svg { animation: pulse 1.2s infinite; }
-    .status--processing .status-icon svg { animation: spin 1s linear infinite; }
-
-    /* ==========================================
-       FOOTER
-       ========================================== */
+    /* RODAPÉ SIMPLES */
     .app-footer {
-      flex-shrink: 0;
-      text-align: center;
-      padding: var(--space-2) 0 var(--space-1);
-      margin-top: var(--space-1);
-      font-size: 0.68rem;
+      grid-column: 1 / -1;
+      text-align: left;
+      margin-top: 30px;
+      font-size: 0.72rem;
       line-height: 1.5;
       color: var(--color-text-muted);
-      letter-spacing: 0.01em;
     }
     .app-footer a {
       color: var(--color-text-muted);
@@ -577,15 +584,13 @@
       opacity: 0.5;
     }
 
-    /* ==========================================
-       MODAIS
-       ========================================== */
+    /* MODAIS */
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -602,7 +607,7 @@
     .modal-content {
       position: relative;
       background:
-        radial-gradient(circle at 50% 0%, rgba(194, 0, 0, 0.10), transparent 60%),
+        radial-gradient(circle at 50% 0%, rgba(194, 0, 0, 0.12), transparent 60%),
         #151515;
       border: 1px solid var(--color-border-strong);
       border-radius: var(--radius-xl);
@@ -612,9 +617,7 @@
       text-align: center;
       transform: scale(0.92) translateY(16px);
       transition: transform 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      box-shadow:
-        0 24px 48px rgba(0, 0, 0, 0.55),
-        0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6);
       margin: auto;
       flex-shrink: 0;
     }
@@ -743,8 +746,8 @@
       border: 1px solid var(--color-border);
       border-radius: var(--radius-md);
       color: var(--color-text);
-      font-family: inherit;
-      font-size: var(--text-sm);
+      font-family: var(--font-reader);
+      font-size: var(--text-base);
       font-weight: 400;
       line-height: 1.5;
       font-style: italic;
@@ -814,15 +817,13 @@
 
     .btn-modal-close {
       width: 100%;
-      height: 52px;
-      min-height: 52px;
+      height: 48px;
       justify-content: center;
       flex-shrink: 0;
-      font-size: var(--text-base);
+      font-size: var(--text-sm);
       gap: var(--space-2);
-      flex: 0 0 auto;
     }
-    .btn-modal-close svg { width: 20px; height: 20px; }
+    .btn-modal-close svg { width: 18px; height: 18px; }
 
     .terms-title {
       font-size: var(--text-lg);
@@ -838,14 +839,13 @@
       justify-content: center;
       gap: var(--space-2);
       width: 100%;
-      height: 52px;
-      min-height: 52px;
+      height: 48px;
       padding: 0 var(--space-4);
       background: var(--color-surface-hover);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-md);
       font-family: inherit;
-      font-size: var(--text-base);
+      font-size: var(--text-sm);
       font-weight: 500;
       color: var(--color-text);
       text-decoration: none;
@@ -859,7 +859,7 @@
       background: rgba(255, 255, 255, 0.14);
       border-color: var(--color-accent);
     }
-    .terms-full-link svg { width: 20px; height: 20px; flex-shrink: 0; }
+    .terms-full-link svg { width: 18px; height: 18px; flex-shrink: 0; }
 
     .terms-checkbox-label {
       display: flex;
@@ -883,9 +883,7 @@
       cursor: pointer;
     }
 
-    /* ==========================================
-       OVERLAY DE RECORTE
-       ========================================== */
+    /* OVERLAY DE RECORTE */
     .crop-overlay {
       position: fixed;
       inset: 0;
@@ -946,88 +944,13 @@
     .crop-overlay__controls .btn {
       flex: 1;
       height: 44px;
-      min-height: 44px;
       font-size: var(--text-sm);
       padding: 0 var(--space-3);
     }
     .crop-overlay__controls .btn svg { width: 16px; height: 16px; }
 
-    /* ==========================================
-       CÂMERA
-       ========================================== */
-    .camera-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 1100;
-      background: #000;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .camera-overlay.show { display: flex; }
-
-    .camera-overlay__video-wrap {
-      position: relative;
-      width: 100%;
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-
-    .camera-overlay__video {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      background: #000;
-    }
-
-    .camera-overlay__controls {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-6);
-      padding: var(--space-5) var(--space-4);
-      background: rgba(10, 10, 10, 0.9);
-      width: 100%;
-      flex-shrink: 0;
-    }
-
-    .camera-btn {
-      width: 56px; height: 56px;
-      border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all var(--duration-fast) ease;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .camera-btn:hover { background: rgba(255, 255, 255, 0.2); }
-    .camera-btn svg { width: 22px; height: 22px; }
-
-    .camera-btn--capture {
-      width: 72px; height: 72px;
-      background: #fff;
-      border: 4px solid rgba(255, 255, 255, 0.5);
-    }
-    .camera-btn--capture:hover { background: #e0e0e0; }
-    .camera-btn--capture svg { color: #000; width: 28px; height: 28px; }
-
-    .camera-btn--close {
-      background: transparent;
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-
-    /* ==========================================
-       ANIMAÇÕES
-       ========================================== */
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    /* ANIMAÇÕES & RESPONSIVO */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     @keyframes waveBar {
@@ -1035,229 +958,132 @@
       50%      { height: var(--h);          opacity: 1;   }
     }
 
-        /* ==========================================
-       BOTÃO DE VOLTAR (HOME)
-       ========================================== */
-       .btn-back {
-      position: absolute;
-      top: var(--space-4);
-      left: var(--space-4);
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: var(--color-surface-hover);
-      border: 1px solid var(--color-border);
-      color: var(--color-text);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all var(--duration-fast) ease;
-      z-index: 10;
-      -webkit-tap-highlight-color: transparent;
-      text-decoration: none;
-    }
-
-    .btn-back:hover {
-      background: rgba(255, 255, 255, 0.14);
-      border-color: var(--color-border-strong);
-      transform: translateX(-2px); /* Efeitinho de mexer para a esquerda */
-    }
-
-    .btn-back svg {
-      width: 20px;
-      height: 20px;
-    }
-
-    /* ==========================================
-       DESKTOP (>768px)
-       ========================================== */
     @media (min-width: 769px) {
-      :root {
-        --text-xs: 0.8125rem;
-        --text-sm: 0.9375rem;
-        --text-base: 1.125rem;
-        --text-lg: 1.375rem;
+      .top-nav {
+        margin-top: -20px;
+        max-width: 1200px;
       }
-      .app-wrapper { max-width: 820px; }
-      .header { margin-bottom: var(--space-6); }
-      .header__logo svg { width: 32px; height: 32px; }
-      .btn { height: 48px; min-height: 48px; font-size: var(--text-sm); }
-      .btn svg { width: 20px; height: 20px; }
-      .voice-selector { height: 48px; flex: 0 0 200px; }
-      .speed-control { height: 48px; }
-      .speed-control__header label, .speed-control__value { font-size: 0.72rem; }
-
-      .speed-control input[type="range"] { height: 6px; }
-      .speed-control input[type="range"]::-webkit-slider-thumb { width: 18px; height: 18px; }
-      .speed-control input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; }
-
-      .status { padding-top: 24px; min-height: 56px; }
-      .status-icon { width: 18px; height: 18px; }
-      #tts-status-text { font-size: var(--text-sm); }
-
-      .bg-waves { height: 180px; opacity: 0.10; }
-      .app-footer { font-size: 0.72rem; }
-
-      .preview-wrap { max-height: 240px; min-height: 180px; }
-      .capture-area .capture-actions .btn { height: 48px; min-height: 48px; }
-      .capture-area { padding-top: var(--space-6); }
-
-      .main-title { margin-bottom: var(--space-4); }
-
-      .btn-scan-mobile  { display: none !important; }
-      .btn-scan-desktop { display: inline-flex !important; }
-
-      /* --- AJUSTES FINAIS: Quebra-cabeça perfeito --- */
-      
-      /* Modal mais largo no Desktop */
-      .modal-content { max-width: 540px; }
-      .modal-content--terms { max-width: 540px; }
-    }
-
-    /* ==========================================
-       MOBILE (≤768px)
-       ========================================== */
-    @media (max-width: 768px) {
-      body {
-        height: auto;
-        min-height: 100vh;
-        overflow-y: auto;
-        padding: var(--space-4);
-        align-items: flex-start;
-      }
-      .app-wrapper { max-height: none; margin-top: var(--space-2); }
-
-      /* Capture area volta a ser coluna */
-      .capture-area {
-        display: flex;
-        flex-direction: column;
-        gap: var(--space-3);
-        padding-top: 0;
-      }
-      .capture-area .capture-actions {
-        display: contents;
-      }
-      .capture-buttons {
-        display: flex;
-        gap: var(--space-3);
-        flex-wrap: nowrap;
-        width: 100%;
-      }
-      .capture-buttons .btn {
-        flex: 1 1 0;
-        min-width: 0;
-        height: 48px;
-        min-height: 48px;
-        font-size: var(--text-sm);
-        gap: var(--space-2);
-        padding: 0 var(--space-2);
-      }
-      .capture-buttons .btn svg { width: 18px; height: 18px; }
-
-      .preview-wrap {
-        min-height: 120px;
-        max-height: none;
-        height: auto;
-      }
-      .preview-wrap img { max-height: 200px; height: auto; object-fit: contain; }
-      .preview-placeholder { padding: var(--space-4); }
-      .preview-placeholder svg { width: 28px; height: 28px; }
-      .preview-placeholder span { font-size: var(--text-xs); }
-
-      /* Player Mobile */
-      .audio-player { 
-        display: flex;
-        width: 100%;
-        height: 48px;
-        min-height: 48px;
-        margin-top: 0;
-        padding: var(--space-2);
-      }
-      .audio-player__time { font-size: 0.65rem; min-width: 28px; }
-
-      /* Esconder Escanear do capture-area e mostrar na barra */
-      .btn-scan-desktop { display: none !important; }
-      .btn-scan-mobile  { display: inline-flex !important; }
-
-      /* Controls bar: alinhamento perfeito */
-      .controls-bar {
-        flex-wrap: wrap;
-        gap: var(--space-2);
+      .app-wrapper {
+        max-width: 1200px;
+        display: grid;
+        grid-template-columns: minmax(0, 1.35fr) minmax(220px, 0.65fr);
+        column-gap: var(--space-5);
+        row-gap: var(--space-4);
         align-items: stretch;
       }
 
-      .btn-scan-mobile,
-      .btn-play-pause,
-      .controls-bar .btn--translate {
-        flex: 1 1 calc(33.333% - var(--space-2));
-        min-width: 0;
-        height: 48px;
-        min-height: 48px;
-        font-size: var(--text-xs);
-        padding: 0 var(--space-2);
-        gap: var(--space-1);
-        white-space: nowrap;
-        overflow: hidden;
-      }
+      .app-footer { margin-top: 50px; }
 
-      .btn-scan-mobile span,
-      .btn-play-pause span,
-      .controls-bar .btn--translate span {
-        overflow: hidden;
-        text-overflow: ellipsis;
+      .header h1 { font-size: var(--text-lg); }
+      .main-title { font-size: var(--text-sm); }
+      .workbench {
+        grid-column: 1;
+        justify-content: space-between;
       }
+      .preview-wrap {
+        flex: 1;
+        min-height: 220px;
+      }
+      .preview-picker {
+        min-height: 220px;
+      }
+      .preview-wrap img { max-height: 280px; }
 
-      .btn-scan-mobile svg,
-      .btn-play-pause svg,
-      .controls-bar .btn--translate svg {
-        width: 16px;
-        height: 16px;
+      .actions-column {
+        grid-column: 2;
+        justify-content: flex-start;
+        gap: var(--space-3);
       }
-
-      .voice-selector {
-        flex: 1 1 100%;
-        height: 48px;
-        min-height: 48px;
+      .actions-grid {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
       }
-      .voice-selector select {
+      .actions-grid .btn {
+        width: 100%;
         height: 48px;
+        padding: 0 var(--space-4);
         font-size: var(--text-sm);
-        padding: 0 var(--space-3);
-        padding-right: calc(var(--space-3) + 18px);
-        background-position: right var(--space-3) center;
-        background-size: 12px;
+      }
+      .status {
+        justify-content: flex-start;
+      }
+      .status-content {
+        justify-content: flex-start;
+        text-align: left;
       }
 
+      .bg-waves { height: 180px; opacity: 0.10; }
+      .modal-content, .modal-content--terms { max-width: 520px; }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        align-items: stretch;
+        padding: calc(var(--space-6) + env(safe-area-inset-top)) var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom));
+      }
+      .top-nav {
+        margin-bottom: var(--space-3);
+      }
+      .app-wrapper {
+        min-height: calc(100dvh - var(--space-6) - var(--space-4) - 42px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+        justify-content: space-between;
+        gap: var(--space-3);
+      }
+      .main-title {
+        display: none;
+      }
+      .workbench {
+        flex: 1;
+      }
+      .preview-wrap {
+        flex: 1;
+        min-height: 160px;
+      }
+      .preview-picker {
+        min-height: 160px;
+      }
+      .preview-wrap img { max-height: 215px; }
+      .tuning-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-2);
+      }
+      .voice-selector {
+        max-width: 100%;
+      }
       .speed-control {
-        flex: 1 1 100%;
-        height: auto;
-        min-width: 100%;
-        padding: var(--space-2) 0;
+        justify-content: space-between;
       }
-      .speed-control__header label, .speed-control__value { font-size: var(--text-xs); }
+      .speed-control input[type="range"] {
+        flex: 1;
+        max-width: 160px;
+      }
+      .actions-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-2);
+      }
+      .actions-grid .btn {
+        height: 48px;
+        padding: 0 var(--space-2);
+        font-size: var(--text-xs);
+        gap: var(--space-1);
+      }
 
-      /* MODAL MOBILE */
       .modal-overlay {
         padding: var(--space-2);
         align-items: flex-start;
         padding-top: max(var(--space-2), env(safe-area-inset-top));
         padding-bottom: max(var(--space-2), env(safe-area-inset-bottom));
       }
-      .modal-content {
-        max-height: calc(100dvh - 16px);
-        max-height: calc(100vh - 16px);
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        padding: var(--space-4) var(--space-3) var(--space-3);
-        border-radius: var(--radius-lg);
-      }
+      .modal-content,
       .modal-content--terms {
         max-height: calc(100dvh - 16px);
         max-height: calc(100vh - 16px);
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;
         padding: var(--space-4) var(--space-3) var(--space-3);
+        border-radius: var(--radius-lg);
       }
       .modal-icon {
         width: 28px; height: 28px;
@@ -1274,43 +1100,21 @@
       .modal-heard-text {
         min-height: 64px;
         max-height: 120px;
-        font-size: var(--text-xs);
+        font-size: var(--text-sm);
         padding: var(--space-2);
         line-height: 1.4;
       }
       .modal-truncate-warning { font-size: 0.65rem; padding: var(--space-1) var(--space-2); margin-bottom: var(--space-2); }
       .modal-note { font-size: 0.65rem; margin-bottom: var(--space-2); line-height: 1.3; }
-      .btn-modal-close, .terms-full-link { height: 44px; min-height: 44px; font-size: var(--text-sm); }
+      .btn-modal-close, .terms-full-link { height: 44px; font-size: var(--text-sm); }
       .terms-title { font-size: var(--text-base); margin-top: var(--space-3); margin-bottom: var(--space-2); }
       .terms-checkbox-label { font-size: var(--text-xs); margin-bottom: var(--space-3); }
-      .header p { display: block; font-size: var(--text-xs); padding: 0 var(--space-3); }
-      .header { margin-bottom: var(--space-4); }
-    }
-    @media (max-width: 768px) {
-        .btn-back {
-        position: fixed; /* Fixa na tela, ignora o container */
-        top: max(var(--space-3), env(safe-area-inset-top));
-        left: max(var(--space-3), env(safe-area-inset-left));
-        width: 40px;
-        height: 40px;
-        background: rgba(21, 21, 21, 0.9); /* Fundo mais escuro para contraste */
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        z-index: 100; /* Garante que fique acima de tudo */
-      }
-      
-      .btn-back svg { width: 18px; height: 18px; }
-      
-      /* Dá um espaço no topo do conteúdo para o botão não cobrir o cabeçalho */
-      .app-wrapper {
-        padding-top: 48px; 
-      }
-      
-      /* ... */
     }
 
-    @media (max-width: 380px) {
+    @media (max-width: 360px) {
+      .actions-grid {
+        grid-template-columns: 1fr;
+      }
       .modal-counter { font-size: 1.6rem; }
       .modal-counter-suffix { font-size: 0.85rem; }
       .modal-heard-text { min-height: 56px; max-height: 96px; }
@@ -1336,49 +1140,30 @@
 
   <div class="bg-waves" id="bg-waves" aria-hidden="true"></div>
 
-  <main class="app-wrapper">
-    <!-- BOTÃO DE VOLTAR -->
-    <a href="../index.html" class="btn-back" aria-label="Voltar para a Home" title="Voltar">
+  <nav class="top-nav" aria-label="Navegação superior">
+    <a class="back-link" href="../home/" title="Voltar para o início">
       <i data-lucide="arrow-left" aria-hidden="true"></i>
+      <span>Início</span>
     </a>
-    
+  </nav>
+
+  <main class="app-wrapper">
     <header class="header">
       <div class="header__logo">
         <i data-lucide="scan-line" aria-hidden="true"></i>
-        <h1>Scanner - Leitor Interativo </h1>
+        <h1>Scanner — Leitor Interativo</h1>
       </div>
-      <p>Tire uma foto do texto e ouça a pronúncia na hora.</p>
+      <h2 id="scanner-title" class="main-title">Adicione uma foto e ouça a pronúncia.</h2>
     </header>
 
-    <h2 id="scanner-title" class="main-title">Foto &rarr; Pronúncia &rarr; Tradução</h2>
+    <section class="workbench" aria-label="Área de imagem, áudio e ajustes">
+      <input type="file" id="gallery-input" class="file-input-hidden" accept="image/*">
 
-    <div class="capture-area">
-      <div class="capture-actions">
-        <div class="capture-buttons">
-          <button class="btn btn--primary" id="btn-open-camera" type="button">
-            <i data-lucide="camera" aria-hidden="true"></i>
-            <span>Tirar foto</span>
-          </button>
-
-          <label class="btn btn--secondary" for="gallery-input">
-            <i data-lucide="image" aria-hidden="true"></i>
-            <span>Galeria</span>
-          </label>
-          <input type="file" id="gallery-input" class="file-input-hidden" accept="image/*">
-
-          <!-- Escanear: visível SOMENTE no desktop -->
-          <button class="btn btn--record btn-scan-desktop" id="btn-scan" type="button" disabled>
-            <i data-lucide="scan-text" aria-hidden="true"></i>
-            <span>Escanear</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="preview-wrap" id="preview-wrap">
-        <div class="preview-placeholder" id="preview-placeholder">
-          <i data-lucide="image-off" aria-hidden="true"></i>
-          <span>Nenhuma imagem selecionada ainda.</span>
-        </div>
+      <div class="preview-wrap is-picker" id="preview-wrap">
+        <label class="preview-picker" id="preview-placeholder" for="gallery-input">
+          <i data-lucide="image-plus" aria-hidden="true"></i>
+          <span>Clique para selecionar uma imagem do dispositivo</span>
+        </label>
         <img id="preview" alt="Pré-visualização da imagem" style="display:none;">
         <div class="preview-actions" id="preview-actions" style="display:none;">
           <button class="btn-icon-overlay" id="btn-crop" type="button" title="Recortar" aria-label="Recortar imagem">
@@ -1393,7 +1178,6 @@
         </div>
       </div>
 
-      <!-- PLAYER DE ÁUDIO -->
       <div class="audio-player" id="audio-player">
         <span class="audio-player__time" id="player-current">0:00</span>
         <div class="audio-player__track" id="player-track" role="progressbar" aria-label="Progresso do áudio" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
@@ -1401,46 +1185,49 @@
         </div>
         <span class="audio-player__time" id="player-duration">0:00</span>
       </div>
-    </div>
 
-    <div class="controls-bar">
-      <!-- Escanear: visível SOMENTE no mobile -->
-      <button class="btn btn--record btn-scan-mobile" id="btn-scan-mobile" type="button" disabled>
-        <i data-lucide="scan-text" aria-hidden="true"></i>
-        <span>Escanear</span>
-      </button>
+      <div class="tuning-row">
+        <div class="voice-selector">
+          <select id="tts-voice" aria-label="Sotaque">
+            <option value="">Voz padrão (Inglês)</option>
+          </select>
+        </div>
 
-      <button class="btn btn--primary btn-play-pause" id="tts-play" type="button" disabled>
-        <i data-lucide="play" aria-hidden="true"></i>
-        <span id="tts-play-label">Ouvir</span>
-      </button>
-
-      <a class="btn btn--translate" id="btn-translate" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true">
-        <i data-lucide="languages" aria-hidden="true"></i>
-        <span>Traduzir</span>
-      </a>
-
-      <div class="voice-selector">
-        <select id="tts-voice" aria-label="Sotaque">
-          <option value="">Sotaque</option>
-        </select>
-      </div>
-
-      <div class="speed-control">
-        <div class="speed-control__header">
-          <label for="speed-slider">Velocidade</label>
+        <div class="speed-control">
+          <div class="speed-control__header">
+            <label for="speed-slider">Velocidade</label>
+          </div>
+          <input type="range" id="speed-slider" min="0.5" max="2.0" step="0.1" value="1.0" style="--value: 33.33%;">
           <span class="speed-control__value" id="speed-display">1.0x</span>
         </div>
-        <input type="range" id="speed-slider" min="0.5" max="2.0" step="0.1" value="1.0" style="--value: 33.33%;">
       </div>
-    </div>
+    </section>
 
-    <div class="status" id="tts-status" role="status" aria-live="polite">
-      <div class="status-content">
-        <div class="status-icon" id="status-icon-container">
-          <i data-lucide="check-circle-2" aria-hidden="true"></i>
+    <div class="actions-column">
+      <div class="actions-grid">
+        <button class="btn btn--record" id="btn-scan" type="button" disabled>
+          <i data-lucide="scan-text" aria-hidden="true"></i>
+          <span>Escanear</span>
+        </button>
+
+        <button class="btn btn--primary btn--play" id="tts-play" type="button" disabled>
+          <i data-lucide="play" aria-hidden="true"></i>
+          <span id="tts-play-label">Ouvir</span>
+        </button>
+
+        <a class="btn btn--translate" id="btn-translate" href="#" target="_blank" rel="noopener noreferrer" aria-disabled="true">
+          <i data-lucide="languages" aria-hidden="true"></i>
+          <span>Traduzir</span>
+        </a>
+      </div>
+
+      <div class="status" id="tts-status" role="status" aria-live="polite">
+        <div class="status-content">
+          <div class="status-icon" id="status-icon-container">
+            <i data-lucide="check-circle-2" aria-hidden="true"></i>
+          </div>
+          <span id="tts-status-text">Pronto para escanear</span>
         </div>
-        <span id="tts-status-text">Pronto para escanear</span>
       </div>
     </div>
 
@@ -1450,24 +1237,6 @@
       <a href="../termos/" target="_blank" rel="noopener noreferrer">Leia os termos de uso</a>
     </footer>
   </main>
-
-  <!-- CAMERA OVERLAY -->
-  <div class="camera-overlay" id="camera-overlay">
-    <div class="camera-overlay__video-wrap">
-      <video class="camera-overlay__video" id="camera-video" autoplay playsinline muted></video>
-    </div>
-    <div class="camera-overlay__controls">
-      <button class="camera-btn camera-btn--close" id="btn-camera-close" type="button" title="Fechar câmera" aria-label="Fechar câmera">
-        <i data-lucide="x" aria-hidden="true"></i>
-      </button>
-      <button class="camera-btn camera-btn--capture" id="btn-camera-capture" type="button" title="Capturar foto" aria-label="Capturar foto">
-        <i data-lucide="camera" aria-hidden="true"></i>
-      </button>
-      <button class="camera-btn" id="btn-camera-switch" type="button" title="Alternar câmera" aria-label="Alternar câmera frontal/traseira">
-        <i data-lucide="refresh-cw" aria-hidden="true"></i>
-      </button>
-    </div>
-  </div>
 
   <!-- OVERLAY DE RECORTE -->
   <div class="crop-overlay" id="crop-overlay" aria-hidden="true">
@@ -1598,7 +1367,6 @@
 
     const els = {
       galleryInput: document.getElementById('gallery-input'),
-      btnOpenCamera: document.getElementById('btn-open-camera'),
       previewWrap: document.getElementById('preview-wrap'),
       preview: document.getElementById('preview'),
       placeholder: document.getElementById('preview-placeholder'),
@@ -1607,7 +1375,6 @@
       btnRotate: document.getElementById('btn-rotate'),
       btnClear: document.getElementById('btn-clear'),
       btnScan: document.getElementById('btn-scan'),
-      btnScanMobile: document.getElementById('btn-scan-mobile'),
       play: document.getElementById('tts-play'),
       playLabel: document.getElementById('tts-play-label'),
       btnTranslate: document.getElementById('btn-translate'),
@@ -1625,12 +1392,7 @@
       playerCurrent: document.getElementById('player-current'),
       playerDuration: document.getElementById('player-duration'),
 
-      cameraOverlay: document.getElementById('camera-overlay'),
-      cameraVideo: document.getElementById('camera-video'),
-      btnCameraClose: document.getElementById('btn-camera-close'),
-      btnCameraCapture: document.getElementById('btn-camera-capture'),
-      btnCameraSwitch: document.getElementById('btn-camera-switch'),
-
+      // Crop
       cropOverlay: document.getElementById('crop-overlay'),
       cropStage: document.getElementById('crop-stage'),
       cropCanvas: document.getElementById('crop-canvas'),
@@ -1638,6 +1400,7 @@
       btnCropCancel: document.getElementById('btn-crop-cancel'),
       btnCropApply: document.getElementById('btn-crop-apply'),
 
+      // Result modal
       modal: document.getElementById('result-modal'),
       modalCounter: document.getElementById('modal-counter'),
       modalMessage: document.getElementById('modal-message'),
@@ -1647,6 +1410,7 @@
       modalTruncateWarningText: document.getElementById('modal-truncate-warning-text'),
       btnModalClose: document.getElementById('btn-modal-close'),
 
+      // Terms modal
       termsModal: document.getElementById('terms-modal'),
       termsCheckbox: document.getElementById('terms-checkbox'),
       btnAcceptTerms: document.getElementById('btn-accept-terms'),
@@ -1661,8 +1425,6 @@
       ocrText: '',
       resetTimer: null,
       editDebounceTimer: null,
-      cameraStream: null,
-      facingMode: 'environment',
       counterAnimation: null,
       cropImg: null,
       cropSelection: null,
@@ -1677,7 +1439,6 @@
     const synth = window.speechSynthesis;
     const supportedTTS = 'speechSynthesis' in window;
     const supportedOCR = typeof Tesseract !== 'undefined';
-    const supportedCamera = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
 
     const STATUS = {
       ready:      { icon: 'check-circle-2', text: 'Pronto para escanear' },
@@ -1709,18 +1470,14 @@
     }
 
     // ==========================================
-    // SINCRONIZAÇÃO DOS DOIS BOTÕES DE ESCANEAR
+    // ESTADO DO BOTÃO ESCANEAR
     // ==========================================
     function setScanEnabled(enabled) {
       if (els.btnScan) els.btnScan.disabled = !enabled;
-      if (els.btnScanMobile) els.btnScanMobile.disabled = !enabled;
     }
 
     function setScanProcessing(on) {
-      [els.btnScan, els.btnScanMobile].forEach(b => {
-        if (!b) return;
-        b.classList.toggle('processing', on);
-      });
+      if (els.btnScan) els.btnScan.classList.toggle('processing', on);
     }
 
     // ==========================================
@@ -2121,122 +1878,6 @@
     }
 
     // ==========================================
-    // CÂMERA
-    // ==========================================
-    async function openCamera() {
-      if (!supportedCamera) {
-        setStatus('error', 'Câmera não suportada neste navegador');
-        scheduleReset(3000);
-        return;
-      }
-
-      try {
-        if (state.cameraStream) {
-          state.cameraStream.getTracks().forEach(t => t.stop());
-        }
-
-        const constraints = {
-          video: {
-            facingMode: state.facingMode,
-            width: { ideal: 1920 },
-            height: { ideal: 1080 }
-          },
-          audio: false
-        };
-
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        state.cameraStream = stream;
-        els.cameraVideo.srcObject = stream;
-        els.cameraOverlay.classList.add('show');
-        setStatus('ready', 'Câmera aberta. Enquadre o texto.');
-      } catch (err) {
-        console.error('Camera error:', err);
-        if (err.name === 'NotAllowedError') {
-          setStatus('error', 'Permissão de câmera negada');
-        } else if (err.name === 'NotFoundError') {
-          setStatus('error', 'Nenhuma câmera encontrada');
-        } else {
-          setStatus('error', 'Não foi possível abrir a câmera');
-        }
-        scheduleReset(3500);
-      }
-    }
-
-    async function switchCamera() {
-      state.facingMode = state.facingMode === 'environment' ? 'user' : 'environment';
-
-      if (!state.cameraStream) return;
-
-      try {
-        state.cameraStream.getTracks().forEach(t => t.stop());
-
-        const constraints = {
-          video: {
-            facingMode: state.facingMode,
-            width: { ideal: 1920 },
-            height: { ideal: 1080 }
-          },
-          audio: false
-        };
-
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        state.cameraStream = stream;
-        els.cameraVideo.srcObject = stream;
-
-        const label = state.facingMode === 'environment' ? 'traseira' : 'frontal';
-        setStatus('ready', `Câmera ${label} ativa`);
-      } catch (err) {
-        console.error('Switch camera error:', err);
-        state.facingMode = state.facingMode === 'environment' ? 'user' : 'environment';
-        setStatus('error', 'Não foi possível alternar a câmera');
-      }
-    }
-
-    function closeCamera() {
-      if (state.cameraStream) {
-        state.cameraStream.getTracks().forEach(t => t.stop());
-        state.cameraStream = null;
-      }
-      els.cameraVideo.srcObject = null;
-      els.cameraOverlay.classList.remove('show');
-    }
-
-    function capturePhoto() {
-      if (!state.cameraStream || !els.cameraVideo.videoWidth) {
-        setStatus('warning', 'Câmera não está pronta');
-        return;
-      }
-
-      const video = els.cameraVideo;
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-      const img = new Image();
-      img.onload = () => {
-        state.originalImage = img;
-        state.rotation = 0;
-        state.extractedText = '';
-        state.ocrText = '';
-        renderPreview();
-        setScanEnabled(true);
-        els.play.disabled = false;
-        updateTranslateLink('');
-        closeCamera();
-        setStatus('ready', 'Foto capturada. Pronto para escanear.');
-        scheduleReset(2500);
-      };
-      img.onerror = () => {
-        setStatus('error', 'Erro ao processar foto');
-        scheduleReset(3000);
-      };
-      img.src = dataUrl;
-    }
-
-    // ==========================================
     // CARREGAMENTO / PREVIEW
     // ==========================================
     function loadImageFile(file) {
@@ -2293,6 +1934,7 @@
       els.preview.style.display = 'block';
       els.placeholder.style.display = 'none';
       els.previewActions.style.display = 'flex';
+      els.previewWrap.classList.remove('is-picker');
       els.previewWrap.classList.add('has-image');
     }
 
@@ -2408,6 +2050,7 @@
       els.placeholder.style.display = 'flex';
       els.previewActions.style.display = 'none';
       els.previewWrap.classList.remove('has-image');
+      els.previewWrap.classList.add('is-picker');
       setScanEnabled(false);
       els.play.disabled = true;
       els.galleryInput.value = '';
@@ -2689,11 +2332,6 @@
     // ==========================================
     // EVENTOS
     // ==========================================
-    els.btnOpenCamera.addEventListener('click', openCamera);
-    els.btnCameraClose.addEventListener('click', closeCamera);
-    els.btnCameraCapture.addEventListener('click', capturePhoto);
-    els.btnCameraSwitch.addEventListener('click', switchCamera);
-
     els.galleryInput.addEventListener('change', (e) => loadImageFile(e.target.files[0]));
 
     els.btnCrop.addEventListener('click', openCrop);
@@ -2711,11 +2349,10 @@
 
     els.btnClear.addEventListener('click', clearImage);
 
-    // Escanear: registra nos dois botões
-    els.btnScan.addEventListener('click', runOCR);
-    if (els.btnScanMobile) els.btnScanMobile.addEventListener('click', runOCR);
+    if (els.btnScan) {
+      els.btnScan.addEventListener('click', runOCR);
+    }
 
-    // Botão unificado Ouvir/Parar
     els.play.addEventListener('click', () => {
       if (state.speaking) {
         stop();
@@ -2751,17 +2388,18 @@
 
     window.addEventListener('resize', () => {
       if (els.cropOverlay.classList.contains('show')) {
+        const prevW = els.cropCanvas.width;
+        const prevH = els.cropCanvas.height;
         setupCropCanvas();
         const cw = els.cropCanvas.width;
         const ch = els.cropCanvas.height;
-        if (state.cropSelection) {
+        if (state.cropSelection && prevW && prevH) {
           const sel = state.cropSelection;
-          const oldW = cw, oldH = ch;
           state.cropSelection = {
-            x: (sel.x / (oldW || cw)) * cw,
-            y: (sel.y / (oldH || ch)) * ch,
-            w: (sel.w / (oldW || cw)) * cw,
-            h: (sel.h / (oldH || ch)) * ch,
+            x: (sel.x / prevW) * cw,
+            y: (sel.y / prevH) * ch,
+            w: (sel.w / prevW) * cw,
+            h: (sel.h / prevH) * ch,
           };
         }
         drawCrop();
@@ -2786,11 +2424,6 @@
     if (!supportedOCR) {
       setStatus('error', 'Biblioteca de OCR não carregada');
       setScanEnabled(false);
-    }
-
-    if (!supportedCamera) {
-      els.btnOpenCamera.disabled = true;
-      els.btnOpenCamera.title = 'Câmera não suportada';
     }
   </script>
 </body>
