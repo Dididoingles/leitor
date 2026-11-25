@@ -26,7 +26,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
@@ -45,7 +45,9 @@
       --color-warning: #fbbf24;
       --color-error: #f87171;
 
-      --font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+      --font-ui: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-reader: 'Newsreader', Georgia, serif;
+
       --text-xs: 0.75rem;
       --text-sm: 0.875rem;
       --text-base: 1rem;
@@ -72,18 +74,18 @@
     html { color-scheme: dark; }
 
     body {
-      font-family: var(--font-family);
+      font-family: var(--font-ui);
       background:
         radial-gradient(circle at 50% -10%, rgba(194, 0, 0, 0.10), transparent 55%),
         radial-gradient(circle at 110% 110%, rgba(194, 0, 0, 0.05), transparent 50%),
         var(--color-bg);
       background-attachment: fixed;
       color: var(--color-text);
-      min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: var(--space-4);
+      padding: var(--space-5) var(--space-4);
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       line-height: 1.5;
@@ -91,6 +93,12 @@
       position: relative;
     }
 
+    ::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #f1f1f100; }
+::-webkit-scrollbar-thumb { background: #f1be1700; }
+::-webkit-scrollbar-thumb:hover { background: #cc0b0b00; }
+
+    /* BACKGROUND SOUNDWAVES */
     .bg-waves {
       position: fixed;
       bottom: 0; left: 0; right: 0;
@@ -117,113 +125,158 @@
       transform-origin: bottom;
     }
 
+    /* MAIN WRAPPER */
     .app-wrapper {
       position: relative;
       z-index: 1;
       width: 100%;
-      max-width: 680px;
+      max-width: 740px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      max-height: calc(100vh - var(--space-8));
+      gap: var(--space-4);
       opacity: 0;
       animation: fadeIn 0.5s var(--ease-out) 0.1s forwards;
     }
 
     /* HEADER */
-    .header { text-align: center; margin-bottom: var(--space-5); flex-shrink: 0; }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+    }
+    .header__brand {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
     .header__logo {
       display: flex;
       align-items: center;
-      justify-content: center;
       gap: var(--space-2);
-      margin-bottom: var(--space-1);
     }
-    .header__logo svg { width: 28px; height: 28px; color: var(--color-accent); }
-    .header h1 { font-size: var(--text-lg); font-weight: 600; letter-spacing: -0.02em; }
-    .header p { font-size: var(--text-xs); color: var(--color-text-dim); font-weight: 300; }
-
-    .main-title {
-      font-size: var(--text-base);
-      font-weight: 500;
-      text-align: center;
-      margin-bottom: var(--space-4);
-      color: var(--color-text);
-      letter-spacing: -0.01em;
+    .header__logo svg {
+      width: 22px;
+      height: 22px;
+      color: var(--color-accent);
       flex-shrink: 0;
     }
-
-    /* INPUT */
-    .input-area {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      min-height: 80px;
-      margin-bottom: var(--space-3);
+    .header h1 {
+      font-size: var(--text-base);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
     }
-    .input-area label {
+    .main-title {
+      font-size: var(--text-xs);
+      font-weight: 400;
+      color: var(--color-text-muted);
+      letter-spacing: 0.01em;
+    }
+
+    /* SCANNER LINK IN HEADER (clean pill, no extra control row needed) */
+    .btn--scan {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 36px;
+      padding: 0 var(--space-3);
+      background: transparent;
+      border: 1px solid var(--color-border);
+      border-radius: 999px;
+      color: var(--color-text-dim);
+      font-family: inherit;
       font-size: var(--text-xs);
       font-weight: 500;
-      color: var(--color-text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: var(--space-2);
-      flex-shrink: 0;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: all var(--duration-fast) ease;
+      -webkit-tap-highlight-color: transparent;
     }
-    .input-area textarea {
-      width: 100%;
-      flex: 1;
-      padding: var(--space-4) var(--space-5);
-      background: #151515;
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      color: var(--color-text);
-      font-family: inherit;
-      font-size: var(--text-sm);
-      line-height: 1.5;
-      resize: none;
-      transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-    .input-area textarea:focus-visible {
-      outline: none;
+    .btn--scan svg { width: 15px; height: 15px; color: var(--color-accent); }
+    .btn--scan:hover {
       border-color: var(--color-accent);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 3px rgba(194, 0, 0, 0.15);
+      color: var(--color-text);
+      background: rgba(194, 0, 0, 0.08);
     }
 
     /* ==========================================
-       PLAYER DE ÁUDIO
+       UNIFIED STUDIO DECK (Textarea + Scrubber + Tuning)
        ========================================== */
+    .studio-deck {
+      background: #151515;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease;
+    }
+    .studio-deck:focus-within {
+      border-color: rgba(194, 0, 0, 0.65);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(194, 0, 0, 0.12);
+    }
+
+    .input-area {
+      display: flex;
+      flex-direction: column;
+      padding: var(--space-4) var(--space-5) var(--space-2);
+    }
+    .input-area label {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--color-text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: var(--space-2);
+    }
+    .input-area textarea {
+      width: 100%;
+      min-height: 165px;
+      background: transparent;
+      border: none;
+      color: var(--color-text);
+      font-family: var(--font-reader);
+      font-size: 1.25rem;
+      font-weight: 400;
+      line-height: 1.65;
+      letter-spacing: -0.005em;
+      resize: vertical;
+    }
+    .input-area textarea::placeholder {
+      color: var(--color-text-muted);
+      font-family: var(--font-ui);
+      font-size: var(--text-sm);
+    }
+    .input-area textarea:focus {
+      outline: none;
+    }
+
+    /* INTEGRATED AUDIO PROGRESS BAR */
     .audio-player {
       display: flex;
       align-items: center;
       gap: var(--space-3);
-      padding: var(--space-2) var(--space-3);
-      background: #151515;
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      margin-bottom: var(--space-3);
-      flex-shrink: 0;
-      transition: border-color var(--duration-fast) ease;
+      padding: var(--space-2) var(--space-5) var(--space-3);
+      transition: opacity var(--duration-fast) ease;
     }
-    .audio-player.is-active {
-      border-color: rgba(194, 0, 0, 0.4);
-    }
-
     .audio-player__time {
-      font-size: 0.7rem;
+      font-size: 0.6875rem;
       font-variant-numeric: tabular-nums;
       color: var(--color-text-muted);
-      min-width: 34px;
+      min-width: 30px;
       text-align: center;
       flex-shrink: 0;
+      transition: color var(--duration-fast) ease;
     }
-
+    .audio-player.is-active .audio-player__time {
+      color: var(--color-text-dim);
+    }
     .audio-player__track {
       flex: 1;
-      height: 6px;
+      height: 4px;
       background: rgba(255, 255, 255, 0.08);
-      border-radius: 3px;
+      border-radius: 999px;
       overflow: hidden;
       position: relative;
       cursor: pointer;
@@ -233,20 +286,122 @@
       height: 100%;
       width: 0%;
       background: linear-gradient(to right, var(--color-accent), var(--color-accent-hover));
-      border-radius: 3px;
+      border-radius: 999px;
       transition: width 0.1s linear;
       pointer-events: none;
     }
 
+    /* INTEGRATED UTILITY BAR (Voice + Speed) */
+    .deck-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      padding: var(--space-3) var(--space-5);
+      background: rgba(255, 255, 255, 0.02);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .voice-selector {
+      position: relative;
+      flex: 1;
+      max-width: 280px;
+      min-width: 0;
+    }
+    .voice-selector select {
+      width: 100%;
+      height: 36px;
+      padding: 0 28px 0 0;
+      background: transparent;
+      border: none;
+      color: var(--color-text-dim);
+      font-family: var(--font-ui);
+      font-size: var(--text-xs);
+      font-weight: 500;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      text-overflow: ellipsis;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='0.55' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 4px center;
+      transition: color var(--duration-fast) ease;
+    }
+    .voice-selector select:hover,
+    .voice-selector select:focus-visible {
+      outline: none;
+      color: var(--color-text);
+    }
+    .voice-selector select option {
+      background: #1a1a1a;
+      color: var(--color-text);
+    }
+
+    .speed-control {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      flex-shrink: 0;
+    }
+    .speed-control__header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .speed-control__header label {
+      font-size: var(--text-xs);
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
+    .speed-control__value {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: var(--color-text);
+      min-width: 30px;
+      text-align: right;
+    }
+    .speed-control input[type="range"] {
+      width: 96px;
+      height: 4px;
+      appearance: none;
+      -webkit-appearance: none;
+      background: linear-gradient(to right, var(--color-accent) var(--value, 33%), rgba(255, 255, 255, 0.14) var(--value, 33%));
+      border-radius: 999px;
+      outline: none;
+      cursor: pointer;
+    }
+    .speed-control input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--color-text);
+      border: 2px solid var(--color-accent);
+      cursor: pointer;
+      transition: transform var(--duration-fast) ease;
+    }
+    .speed-control input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+    }
+    .speed-control input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--color-text);
+      border: 2px solid var(--color-accent);
+      cursor: pointer;
+    }
+
     /* ==========================================
-       BARRA DE CONTROLES (linha única)
+       PRIMARY ACTIONS (Clean 2-button stage)
        ========================================== */
     .controls-row {
-      display: flex;
-      gap: var(--space-2);
-      margin-bottom: var(--space-3);
-      flex-shrink: 0;
-      align-items: stretch;
+      display: grid;
+      grid-template-columns: 1fr 1.35fr;
+      gap: var(--space-3);
     }
 
     .btn {
@@ -254,100 +409,65 @@
       align-items: center;
       justify-content: center;
       gap: var(--space-2);
-      padding: 0 var(--space-3);
-      height: 44px;
-      min-height: 44px;
+      padding: 0 var(--space-5);
+      height: 52px;
       border: 1px solid transparent;
-      border-radius: var(--radius-md);
-      font-family: inherit;
+      border-radius: var(--radius-lg);
+      font-family: var(--font-ui);
       font-size: var(--text-sm);
-      font-weight: 500;
+      font-weight: 600;
+      letter-spacing: -0.01em;
       cursor: pointer;
       transition: all var(--duration-fast) ease;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
       white-space: nowrap;
       text-decoration: none;
-      flex-shrink: 0;
     }
     .btn svg { width: 18px; height: 18px; flex-shrink: 0; }
 
     .btn--primary {
       background: var(--color-accent);
       color: #fff;
+      box-shadow: 0 8px 20px rgba(194, 0, 0, 0.25);
     }
-    .btn--primary:hover:not(:disabled) { background: var(--color-accent-hover); }
+    .btn--primary:hover:not(:disabled) {
+      background: var(--color-accent-hover);
+      transform: translateY(-1px);
+    }
+    .btn--primary:active:not(:disabled) {
+      transform: translateY(0);
+    }
 
-    .btn--secondary {
-      background: var(--color-surface-hover);
-      color: var(--color-text);
-      border-color: var(--color-border);
+    .btn--play.is-playing {
+      background: #151515;
+      border-color: var(--color-accent);
+      color: #fff;
+      box-shadow: none;
     }
-    .btn--secondary:hover:not(:disabled) { background: rgba(255, 255, 255, 0.14); }
+    .btn--play.is-playing:hover {
+      background: #240c0c;
+    }
 
     .btn--record {
       background: #151515;
-      border: 1px solid var(--color-accent);
-      color: #fff;
-      flex: 1;
-      min-width: 0;
+      border: 1px solid var(--color-border-strong);
+      color: var(--color-text);
     }
-    .btn--record:hover:not(:disabled) { background: #2a0a0a; }
+    .btn--record svg {
+      color: var(--color-accent);
+    }
+    .btn--record:hover:not(:disabled) {
+      border-color: var(--color-accent);
+      background: rgba(194, 0, 0, 0.08);
+    }
     .btn--record.listening {
       background: var(--color-error);
       border-color: var(--color-error);
+      color: #0a0a0a;
       animation: pulse-border 1.5s infinite;
     }
 
-    .btn--scan {
-      background: #151515;
-      border: 1px solid var(--color-border-strong);
-      color: var(--color-text);
-      text-decoration: none;
-    }
-    .btn--scan:hover { border-color: var(--color-accent); background: rgba(255, 255, 255, 0.06); }
-
-    /* Botão Ouvir/Pausar unificado */
-    .btn--play {
-      min-width: 100px;
-    }
-    .btn--play.is-playing {
-      background: #151515;
-      border: 1px solid var(--color-accent);
-      color: #fff;
-    }
-    .btn--play.is-playing:hover { background: #2a0a0a; }
-
-    /* Seletor de voz compacto */
-    .voice-selector {
-      flex: 1 1 180px;
-      min-width: 140px;
-      height: 44px;
-    }
-    .voice-selector select {
-      width: 100%;
-      height: 100%;
-      padding: 0 var(--space-3);
-      padding-right: calc(var(--space-3) + 18px);
-      background: #151515;
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      color: var(--color-text);
-      font-family: inherit;
-      font-size: var(--text-sm);
-      font-weight: 500;
-      cursor: pointer;
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='0.6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right var(--space-2) center;
-    }
-    .voice-selector select:focus-visible { outline: none; border-color: var(--color-accent); }
-    .voice-selector select option { background: #1a1a1a; }
-
-    /* Barrinhas animadas do botão praticar */
     .btn--record .rec-bars {
       display: inline-flex;
       align-items: center;
@@ -366,84 +486,36 @@
     .btn--record .rec-bars span:nth-child(2) { animation-delay: 0.15s; }
     .btn--record .rec-bars span:nth-child(3) { animation-delay: 0.30s; }
 
-    /* ==========================================
-       CONTROLE DE VELOCIDADE (linha extra)
-       ========================================== */
-    .speed-control {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      margin-bottom: var(--space-3);
-      flex-shrink: 0;
-    }
-    .speed-control__header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: var(--space-1);
-    }
-    .speed-control__header label { font-size: var(--text-xs); color: var(--color-text-dim); }
-    .speed-control__value { font-size: var(--text-xs); font-weight: 600; color: var(--color-text); }
-
-    .speed-control input[type="range"] {
-      width: 100%; height: 4px;
-      appearance: none;
-      -webkit-appearance: none;
-      background: linear-gradient(to right, var(--color-accent) var(--value, 33%), var(--color-border) var(--value, 33%));
-      border-radius: 2px;
-      outline: none;
-      cursor: pointer;
-    }
-    .speed-control input[type="range"]::-webkit-slider-thumb {
-      appearance: none;
-      -webkit-appearance: none;
-      width: 16px; height: 16px;
-      border-radius: 50%;
-      background: var(--color-accent);
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 0 0 2px var(--color-bg);
-    }
-    .speed-control input[type="range"]::-moz-range-thumb {
-      width: 16px; height: 16px;
-      border-radius: 50%;
-      background: var(--color-accent);
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 0 0 2px var(--color-bg);
-    }
-
-    /* STATUS */
+    /* STATUS BAR */
     .status {
       display: flex;
       justify-content: center;
       align-items: center;
-      width: 100%;
-      padding-top: var(--space-3);
-      min-height: 40px;
-      flex-shrink: 0;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      margin-top: var(--space-2);
-      color: var(--color-text-dim);
+      padding-top: var(--space-1);
+      color: var(--color-text-muted);
     }
     .status-content {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: var(--space-2);
-      max-width: 90%;
+      gap: 6px;
       text-align: center;
     }
     .status-icon {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 16px; height: 16px;
+      width: 14px;
+      height: 14px;
       flex-shrink: 0;
     }
     .status-icon svg { width: 100%; height: 100%; }
     #tts-status-text { font-size: var(--text-xs); line-height: 1.4; }
-    .status--playing .status-icon svg { animation: pulse 1.2s infinite; }
+    .status--playing { color: var(--color-text-dim); }
+    .status--playing .status-icon svg {
+      color: var(--color-accent);
+      animation: pulse 1.2s infinite;
+    }
 
     /* ==========================================
        MODAL DE FEEDBACK
@@ -451,9 +523,9 @@
     .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -468,27 +540,27 @@
     .modal-content {
       position: relative;
       background:
-        radial-gradient(circle at 50% 0%, rgba(194, 0, 0, 0.10), transparent 60%),
+        radial-gradient(circle at 50% 0%, rgba(194, 0, 0, 0.12), transparent 60%),
         #151515;
       border: 1px solid var(--color-border-strong);
       border-radius: var(--radius-xl);
-      padding: var(--space-6) var(--space-5) var(--space-4);
+      padding: var(--space-6) var(--space-5) var(--space-5);
       width: 100%;
-      max-width: 360px;
+      max-width: 380px;
       text-align: center;
       transform: scale(0.92) translateY(16px);
       transition: transform 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      box-shadow:
-        0 24px 48px rgba(0, 0, 0, 0.55),
-        0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6);
       overflow: hidden;
     }
     .modal-overlay.show .modal-content { transform: scale(1) translateY(0); }
 
     .modal-icon {
       position: absolute;
-      top: var(--space-4); left: var(--space-4);
-      width: 36px; height: 36px;
+      top: var(--space-4);
+      left: var(--space-4);
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -517,15 +589,18 @@
 
     .modal-score-wrap {
       position: relative;
-      width: 112px; height: 112px;
+      width: 112px;
+      height: 112px;
       margin: 0 auto var(--space-3);
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .modal-score-ring {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
       transform: rotate(-90deg);
     }
     .modal-score-ring circle {
@@ -550,8 +625,8 @@
       transition: color 0.3s ease;
     }
     .modal-message {
-      font-size: var(--text-sm);
-      font-weight: 500;
+      font-size: var(--text-base);
+      font-weight: 600;
       margin-bottom: var(--space-4);
       color: var(--color-text);
       transition: color 0.3s ease;
@@ -565,49 +640,48 @@
       margin-bottom: var(--space-3);
       text-align: left;
     }
-    .modal-detail-row { display: flex; flex-direction: column; gap: 2px; }
+    .modal-detail-row { display: flex; flex-direction: column; gap: 4px; }
     .modal-detail-label {
       display: inline-flex;
       align-items: center;
-      gap: var(--space-1);
-      font-size: var(--text-xs);
-      font-weight: 500;
+      gap: 6px;
+      font-size: 0.6875rem;
+      font-weight: 600;
       color: var(--color-text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
     }
     .modal-detail-label svg { width: 12px; height: 12px; }
     .modal-heard-text {
-      font-size: var(--text-sm);
+      font-family: var(--font-reader);
+      font-size: var(--text-base);
       font-weight: 400;
-      color: var(--color-text-dim);
+      color: var(--color-text);
       font-style: italic;
-      line-height: 1.4;
+      line-height: 1.45;
       word-break: break-word;
     }
     .modal-note {
       display: flex;
       align-items: center;
-      gap: var(--space-2);
-      text-align: left;
+      justify-content: center;
+      gap: 6px;
       font-size: var(--text-xs);
       line-height: 1.35;
       color: var(--color-text-muted);
-      padding: 0 var(--space-1);
       margin-bottom: var(--space-4);
     }
-    .modal-note svg { width: 13px; height: 13px; flex-shrink: 0; color: var(--color-text-muted); }
-    .modal-note span { flex: 1; }
+    .modal-note svg { width: 13px; height: 13px; flex-shrink: 0; }
 
     .btn-modal-close {
       width: 100%;
-      justify-content: center;
+      height: 46px;
     }
 
     /* ==========================================
        ANIMAÇÕES
        ========================================== */
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
     @keyframes pulse-border { 0%, 100% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.4); } 50% { box-shadow: 0 0 0 6px rgba(248, 113, 113, 0); } }
     @keyframes waveBar {
@@ -623,97 +697,92 @@
        DESKTOP (≥769px)
        ========================================== */
     @media (min-width: 769px) {
-      :root {
-        --text-xs: 0.8125rem;
-        --text-sm: 0.9375rem;
-        --text-base: 1.125rem;
-        --text-lg: 1.375rem;
+      .app-wrapper {
+        max-width: 1000px;
+        margin-top: 20px;
+        gap: var(--space-5);
       }
-      .app-wrapper { max-width: 960px; }
-      .header { margin-bottom: var(--space-4); }
-      .header__logo svg { width: 32px; height: 32px; }
-      .main-title { margin-bottom: var(--space-3); }
-
-      .input-area { margin-bottom: var(--space-2); }
+      .header h1 { font-size: var(--text-lg); }
+      .main-title { font-size: var(--text-sm); }
+      .input-area { padding: var(--space-5) var(--space-6) var(--space-3); }
       .input-area textarea {
-        font-size: var(--text-base);
-        min-height: 160px;
-        max-height: 240px;
-        padding: var(--space-5);
+        min-height: 110px;
+        font-size: 1.375rem;
       }
-
-      .btn { height: 44px; font-size: var(--text-sm); }
-      .btn svg { width: 18px; height: 18px; }
-      .voice-selector { height: 44px; }
-
-      .status { padding-top: 20px; min-height: 48px; }
-      .status-icon { width: 18px; height: 18px; }
-      #tts-status-text { font-size: var(--text-sm); }
-
+      .audio-player { padding: var(--space-2) var(--space-6) var(--space-4); }
+      .deck-toolbar { padding: var(--space-3) var(--space-6); }
       .bg-waves { height: 180px; opacity: 0.10; }
     }
 
     /* ==========================================
-       MOBILE (≤768px)
+       MOBILE (≤768px) — Thumb-friendly UX
        ========================================== */
-       @media (max-width: 768px) {
-  body {
-    height: auto;
-    min-height: 100vh;
-    overflow-y: auto;
-    padding: var(--space-3);
-    align-items: flex-start;
-  }
-  .app-wrapper { max-height: none; margin-top: var(--space-2); }
-  .input-area textarea { min-height: 140px; resize: vertical; }
-
-  /* Mobile: 2 botões por linha, com texto visível */
-  .controls-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--space-2);
-  }
-
-  .controls-row .btn {
-    flex: initial;
-    width: 100%;
-    min-width: 0;
-    height: 48px;
-    min-height: 48px;
-    padding: 0 var(--space-2);
-    gap: var(--space-2);
-    font-size: var(--text-xs);
-  }
-  .controls-row .btn svg { width: 18px; height: 18px; }
-  .controls-row .btn span { display: inline; }
-
-  /* Seletor de voz ocupa a célula como os outros botões */
-  .voice-selector {
-    flex: initial;
-    width: 100%;
-    min-width: 0;
-    height: 48px;
-  }
-  .voice-selector select {
-    height: 48px;
-    padding: 0 var(--space-2);
-    padding-right: calc(var(--space-2) + 18px);
-    font-size: var(--text-xs);
-    text-align: left;
-    background-position: right var(--space-2) center;
-  }
-
-  .audio-player { padding: var(--space-2); }
-  .audio-player__time { font-size: 0.65rem; min-width: 28px; }
-
-  .header p { display: none; }
-  .header { margin-bottom: var(--space-4); }
-
-  .speed-control { margin-bottom: var(--space-2); }
-}
+    @media (max-width: 768px) {
+      body {
+        align-items: stretch;
+        padding: calc(var(--space-4) + env(safe-area-inset-top)) var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom));
+      }
+      .app-wrapper {
+        min-height: calc(100dvh - var(--space-8) - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+        justify-content: space-between;
+        margin-top: 50px;
+        gap: var(--space-3);
+      }
+      .main-title {
+        display: none;
+      }
+      .studio-deck {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      .input-area {
+        flex: 1;
+        padding: var(--space-4) var(--space-4) var(--space-2);
+      }
+      .input-area textarea {
+        flex: 1;
+        min-height: 150px;
+        font-size: 1.1875rem;
+        resize: none;
+      }
+      .audio-player {
+        padding: var(--space-2) var(--space-4) var(--space-3);
+      }
+      .deck-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-2);
+        padding: var(--space-3) var(--space-4);
+      }
+      .voice-selector {
+        max-width: 100%;
+      }
+      .speed-control {
+        justify-content: space-between;
+        padding-top: var(--space-1);
+        border-top: 1px solid rgba(255, 255, 255, 0.04);
+      }
+      .speed-control input[type="range"] {
+        flex: 1;
+        max-width: 160px;
+      }
+      .controls-row {
+        grid-template-columns: 1fr 1.45fr;
+        gap: var(--space-2);
+      }
+      .btn {
+        height: 54px;
+        padding: 0 var(--space-3);
+        font-size: var(--text-sm);
+      }
+    }
 
     @media (max-width: 380px) {
-      .modal-content { padding: var(--space-5) var(--space-4) var(--space-3); }
+      .controls-row {
+        grid-template-columns: 1fr;
+      }
+      .modal-content { padding: var(--space-5) var(--space-4) var(--space-4); }
       .modal-icon { width: 32px; height: 32px; top: var(--space-3); left: var(--space-3); }
       .modal-icon svg { width: 16px; height: 16px; }
       .modal-score-wrap { width: 96px; height: 96px; }
@@ -738,35 +807,58 @@
 
   <main class="app-wrapper">
     <header class="header">
-      <div class="header__logo">
-        <i data-lucide="audio-lines" aria-hidden="true"></i>
-        <h1>Leitor Interativo</h1>
+      <div class="header__brand">
+        <div class="header__logo">
+          <i data-lucide="audio-lines" aria-hidden="true"></i>
+          <h1>Leitor Interativo</h1>
+        </div>
+        <h2 id="tts-title" class="main-title">Text-to-speech &amp; Pronunciation check</h2>
       </div>
-      <p>Pratique seu Inglês com qualquer material, grátis.</p>
+
+      <a class="btn--scan" href="../scanner/" title="Usar imagem (Scanner de Pronúncia)">
+        <i data-lucide="scan-line" aria-hidden="true"></i>
+        <span>Scanner</span>
+      </a>
     </header>
 
-    <h2 id="tts-title" class="main-title">Text-to-speech &amp; Pronunciation check</h2>
-
-    <div class="input-area">
-      <label for="tts-text">Cole o texto para praticar</label>
-      <textarea
-        id="tts-text"
-        lang="en"
-        placeholder="Cole seu texto em inglês aqui..."
-        spellcheck="false"
-      >Hello, how are you today?</textarea>
-    </div>
-
-    <!-- PLAYER DE ÁUDIO -->
-    <div class="audio-player" id="audio-player">
-      <span class="audio-player__time" id="player-current">0:00</span>
-      <div class="audio-player__track" id="player-track" role="progressbar" aria-label="Progresso do áudio" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-        <div class="audio-player__fill" id="player-fill"></div>
+    <!-- UNIFIED STUDIO DECK -->
+    <section class="studio-deck" aria-label="Área de leitura e ajustes">
+      <div class="input-area">
+        <label for="tts-text">Texto em inglês</label>
+        <textarea
+          id="tts-text"
+          lang="en"
+          placeholder="Cole ou digite seu texto em inglês aqui..."
+          spellcheck="false"
+        >Hello, how are you today?</textarea>
       </div>
-      <span class="audio-player__time" id="player-duration">0:00</span>
-    </div>
 
-    <!-- CONTROLES PRINCIPAIS -->
+      <div class="audio-player" id="audio-player">
+        <span class="audio-player__time" id="player-current">0:00</span>
+        <div class="audio-player__track" id="player-track" role="progressbar" aria-label="Progresso do áudio" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="audio-player__fill" id="player-fill"></div>
+        </div>
+        <span class="audio-player__time" id="player-duration">0:00</span>
+      </div>
+
+      <div class="deck-toolbar">
+        <div class="voice-selector">
+          <select id="tts-voice" aria-label="Escolha uma voz">
+            <option value="">Voz padrão (Inglês)</option>
+          </select>
+        </div>
+
+        <div class="speed-control">
+          <div class="speed-control__header">
+            <label for="speed-slider">Velocidade</label>
+          </div>
+          <input type="range" id="speed-slider" min="0.5" max="2.0" step="0.1" value="1.0" style="--value: 33.33%;">
+          <span class="speed-control__value" id="speed-display">1.0x</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRIMARY ACTION STAGE -->
     <div class="controls-row">
       <button class="btn btn--primary btn--play" id="tts-play" type="button">
         <i data-lucide="play" aria-hidden="true"></i>
@@ -777,26 +869,6 @@
         <i data-lucide="mic" aria-hidden="true"></i>
         <span>Praticar Pronúncia</span>
       </button>
-
-      <div class="voice-selector">
-        <select id="tts-voice" aria-label="Escolha uma voz">
-          <option value="">Escolha uma voz</option>
-        </select>
-      </div>
-
-      <a class="btn btn--scan" href="../scanner/" title="Usar imagem (Scanner de Pronúncia)">
-        <i data-lucide="scan-line" aria-hidden="true"></i>
-        <span>Usar imagem</span>
-      </a>
-    </div>
-
-    <!-- VELOCIDADE -->
-    <div class="speed-control">
-      <div class="speed-control__header">
-        <label for="speed-slider">Velocidade</label>
-        <span class="speed-control__value" id="speed-display">1.0x</span>
-      </div>
-      <input type="range" id="speed-slider" min="0.5" max="2.0" step="0.1" value="1.0" style="--value: 33.33%;">
     </div>
 
     <!-- STATUS -->
@@ -965,7 +1037,6 @@
     }
 
     function estimateDuration(text, rate) {
-      // ~150 palavras por minuto em inglês é uma média razoável
       const words = (text || '').trim().split(/\s+/).filter(Boolean).length;
       if (!words) return 0;
       const baseSeconds = (words / 150) * 60;
@@ -999,7 +1070,7 @@
       els.playerDuration.textContent = formatTime(duration);
       els.player.classList.add('is-active');
 
-      const tick = 0.1; // 100ms
+      const tick = 0.1;
       state.playerInterval = setInterval(() => {
         if (!state.speaking || state.paused) return;
         state.currentProgress = Math.min(duration, state.currentProgress + tick);
@@ -1105,7 +1176,7 @@
       const english = voices.filter(v => v.lang?.toLowerCase().startsWith('en'));
       const list = english.length ? english : voices;
 
-      els.voice.innerHTML = '<option value="">Escolha uma voz</option>';
+      els.voice.innerHTML = '<option value="">Voz padrão (Inglês)</option>';
       list.forEach(v => {
         const opt = document.createElement('option');
         opt.value = v.name;
@@ -1132,7 +1203,6 @@
     function speak() {
       if (!supportedTTS) return;
 
-      // Se já está falando, pausa; se está pausado, retoma
       if (state.speaking && !state.paused) {
         pauseSpeech();
         return;
@@ -1266,7 +1336,7 @@
       els.btnPractice.classList.add('listening');
       els.btnPractice.innerHTML =
         '<span class="rec-bars" aria-hidden="true"><span></span><span></span><span></span></span>' +
-        '<span>Cancelar gravação</span>';
+        '<span>Cancelar</span>';
       lucide.createIcons();
 
       state.listening = true;
